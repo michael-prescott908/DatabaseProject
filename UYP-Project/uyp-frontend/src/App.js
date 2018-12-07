@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import AddStudentPage from './AddStudentPage.js';
+import ViewClassesPage from './ViewClassesPage.js';
 
 class App extends Component {
 
@@ -73,6 +74,12 @@ class App extends Component {
       });
     }
 
+    ViewClassesPage = () => {
+      this.setState({
+        pageVal: 2
+      });
+    }
+
     goBack = () => {
       this.setState({
         pageVal: 0
@@ -91,6 +98,8 @@ class App extends Component {
                 <div>
                 <button />
                     <button onClick={this.AddStudentPage}>Add Student</button>
+                    <br/>
+                    <button onClick={this.ViewClassesPage}>View Classes</button>
                 </div>
             </div>
         );
@@ -103,6 +112,21 @@ class App extends Component {
                 <div>
                 <button />
                     <AddStudentPage/>
+                    <div align="left">
+                      <button onClick={this.goBack}>Back</button>
+                    </div>
+                </div>
+            </div>
+          );
+      }
+
+      else if (this.state.pageVal === 2) {
+        return (
+            <div className="App">
+                {console.log('I am running!')}
+                <div>
+                <button />
+                    <ViewClassesPage/>
                     <div align="left">
                       <button onClick={this.goBack}>Back</button>
                     </div>

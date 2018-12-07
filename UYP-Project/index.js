@@ -15,7 +15,7 @@ const connection = mysql.createConnection({
 
 connection.connect(err => {
     if(err){
-        console.log(err);
+        console.log('Something went wrong': err);
         return err;
     }
 });
@@ -27,6 +27,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/students/add', (req, res) => {
+    console.log('I am adding a student');
     const { ID, FirstName, MiddleName, LastName } = req.query;
     const INSERT_STUDENT = `INSERT INTO Students (ID, FirstName, MiddleName, LastName) ` +
     `VALUES (${ID}, '${FirstName}', '${MiddleName}', '${LastName}')`

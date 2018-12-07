@@ -60,7 +60,14 @@ class AddStudentPage extends Component {
 
     addStudent = _ => {
         const { student } = this.state;
-        fetch(`http://localhost:4000/students/add?ID=${student.ID}&FirstName=${student.FirstName}&MiddleName=${student.MiddleName}&LastName=${student.LastName}`)
+        fetch(`db.summersend.serverswc.com/students/add?ID=${this.state.student.ID}&FirstName=${this.state.student.FirstName}&LastName=${this.state.student.LastName}&MiddleInitial=${this.state.student.MiddleName}
+              &Suffix=${this.state.student.Suffix}&Nickname=${this.state.student.Nickname}&SchoolType=${this.state.student.SchoolType}&SchoolName=${this.state.student.SchoolName}&SchoolDistrict=${this.state.student.SchoolDistrict}
+              &NextClass=${this.state.student.NextClass}&ExpectedHighSchool=${this.state.student.ExpectedHighSchool}&Address_Line1=${this.state.student.Address_Line1}&Address_Line2=${this.state.student.Address_Line2}
+              &City=${this.state.student.City}&State=${this.state.student.State}&Zip=${this.state.student.Zip}&Birthdate=${this.state.student.Birthdate}&Gender=${this.state.student.Gender}&Ethnicity=${this.state.student.Ethnicity}
+              &PhoneNumber=${this.state.student.PhoneNumber}&Email=${this.state.student.Email}&GraduationYear=${this.state.student.GraduationYear}&Siblings=${this.state.student.Siblings}&Gaurdian1=${this.state.student.Gaurdian1}
+              &Gaurdian1Address_Line1=${this.state.student.Gaurdian1Address_Line1}&Gaurdian1Address_Line2=${this.state.student.Gaurdian1Address_Line2}&Gaurdian1Email=${this.state.student.Gaurdian1Email}&Gaurdian1Phone=${this.state.student.Gaurdian1Phone}
+              &Gaurdian2=${this.state.student.Gaurdian2}&Gaurdian2Address_Line1=${this.state.student.Gaurdian2Address_Line1}&Gaurdian2Address_Line2=${this.state.student.Gaurdian2Address_Line2}&Gaurdian2Email=${this.state.student.Gaurdian2Email}
+              &Gaurdian2Phone=${this.state.student.Gaurdian2Phone}&GT=${this.state.student.GT}`)
             .then(response => response.json())
             .then(this.getStudents)
             .catch(err => console.error(err))
@@ -266,7 +273,6 @@ class AddStudentPage extends Component {
 
                             <button onClick={this.addStudent}>Add Student</button>
                             <br/>
-
                     </div>
                 </div>
             </div>
