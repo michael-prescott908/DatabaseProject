@@ -7,10 +7,10 @@ const app = express();
 const SELECT_All_STUDENTS = 'SELECT * FROM STUDENTS';
 
 const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'uyp-schema'
+    host: 'db.summersend.serverswc.com',
+    user: 'michael',
+    password: 'databaseproject',
+    database: 'dbproject'
 });
 
 connection.connect(err => {

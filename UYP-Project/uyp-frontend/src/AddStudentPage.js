@@ -53,9 +53,9 @@ class AddStudentPage extends Component {
       }
     }
 
-    constructor(t_student){
-      this.student = t_student;
-    }
+    /*constructor(t_student){
+      this.state.student = t_student;
+    }*/
 
     addStudent = _ => {
         const { student } = this.state;
@@ -69,115 +69,198 @@ class AddStudentPage extends Component {
         const { student } = this.state;
         return (
             <div className="AddStudentPage">
-                {students.map(this.renderStudent)}
+                <div align="center">
+                    Welcome to the application! <br/>
+                    Please fill out the required information!<br/><br/><br/>
+                    <div align="left">
+                        Student First Name:{" "}
+                        <input
+                            value={student.FirstName}
+                            onChange={e => this.setState({ student: {...student, FirstName: e.target.value}})} />
+                            <br/>
 
-                <div>
-                    <input
-                        value={student.ID}
-                        onChange={e => this.setState({ student: {...student, ID: e.target.value}})} />
-                    <input
-                        value={student.FirstName}
-                        onChange={e => this.setState({ student: {...student, FirstName: e.target.value}})} />
-                    <input
-                        value={student.LastName}
-                        onChange={e => this.setState({ student: {...student, LastName: e.target.value}})} />
-                    <input
-                        value={student.MiddleInitial}
-                        onChange={e => this.setState({ student: {...student, MiddleInitial: e.target.value}})} />
-                    <input
-                        value={student.Suffix}
-                        onChange={e => this.setState({ student: {...student, Suffix: e.target.value}})} />
-                    <input
-                        value={student.Nickname}
-                        onChange={e => this.setState({ student: {...student, Nickname: e.target.value}})} />
-                    <input
-                        value={student.Address_Line1}
-                        onChange={e => this.setState({ student: {...student, Address_Line1: e.target.value}})} />
-                    <input
-                        value={student.Address_Line2}
-                        onChange={e => this.setState({ student: {...student, Address_Line2: e.target.value}})} />
-                    <input
-                        value={student.City}
-                        onChange={e => this.setState({ student: {...student, City: e.target.value}})} />
-                    <input
-                        value={student.State}
-                        onChange={e => this.setState({ student: {...student, State: e.target.value}})} />
-                    <input
-                        value={student.Zip}
-                        onChange={e => this.setState({ student: {...student, Zip: e.target.value}})} />
-                    <input
-                        value={student.Birthdate}
-                        onChange={e => this.setState({ student: {...student, Birthdate: e.target.value}})} />
-                    <input
-                        value={student.Gender}
-                        onChange={e => this.setState({ student: {...student, Gender: e.target.value}})} />
-                    <input
-                        value={student.Ethnicity}
-                        onChange={e => this.setState({ student: {...student, Ethnicity: e.target.value}})} />
-                    <input
-                        value={student.SchoolType}
-                        onChange={e => this.setState({ student: {...student, SchoolType: e.target.value}})} />
-                    <input
-                        value={student.SchoolName}
-                        onChange={e => this.setState({ student: {...student, SchoolName: e.target.value}})} />
-                    <input
-                        value={student.SchoolDistrict}
-                        onChange={e => this.setState({ student: {...student, SchoolDistrict: e.target.value}})} />
-                    <input
-                        value={student.NextClass}
-                        onChange={e => this.setState({ student: {...student, NextClass: e.target.value}})} />
-                    <input
-                        value={student.GraduationYear}
-                        onChange={e => this.setState({ student: {...student, GraduationYear: e.target.value}})} />
-                    <input
-                        value={student.Email}
-                        onChange={e => this.setState({ student: {...student, Email: e.target.value}})} />
-                    <input
-                        value={student.PhoneNumber}
-                        onChange={e => this.setState({ student: {...student, PhoneNumber: e.target.value}})} />
-                    <input
-                        value={student.GT}
-                        onChange={e => this.setState({ student: {...student, GT: e.target.value}})} />
+                        Student Last Name:{" "}
+                        <input
+                            value={student.LastName}
+                            onChange={e => this.setState({ student: {...student, LastName: e.target.value}})} />
+                            <br/>
 
-                    <input
-                        value={student.Gaurdian1}
-                        onChange={e => this.setState({ student: {...student, Gaurdian1: e.target.value}})} />
+                        Student Middle Initial:{" "}
+                        <input
+                            value={student.MiddleInitial}
+                            onChange={e => this.setState({ student: {...student, MiddleInitial: e.target.value}})} />
+                            <br/>
 
-                    <input
-                        value={student.Gaurdian1Address_Line1}
-                        onChange={e => this.setState({ student: {...student, Gaurdian1Address_Line1: e.target.value}})} />
-                    <input
-                        value={student.Gaurdian1Address_Line2}
-                        onChange={e => this.setState({ student: {...student, Gaurdian1Address_Line2: e.target.value}})} />
+                        Student Suffix:{" "}
+                        <input
+                            value={student.Suffix}
+                            onChange={e => this.setState({ student: {...student, Suffix: e.target.value}})} />
+                            <br/>
 
-                    <input
-                        value={student.Gaurdian1Email}
-                        onChange={e => this.setState({ student: {...student, Gaurdian1Email: e.target.value}})} />
+                        Student Preferred Name:{" "}
+                        <input
+                            value={student.Nickname}
+                            onChange={e => this.setState({ student: {...student, Nickname: e.target.value}})} />
+                            <br/>
 
-                    <input
-                        value={student.Gaurdian1Phone}
-                        onChange={e => this.setState({ student: {...student, Gaurdian1Phone: e.target.value}})} />
+                        Address Line 1:{" "}
+                        <input
+                            value={student.Address_Line1}
+                            onChange={e => this.setState({ student: {...student, Address_Line1: e.target.value}})} />
+                            <br/>
 
-                    <input
-                        value={student.Gaurdian2Address_Line1}
-                        onChange={e => this.setState({ student: {...student, Gaurdian2Address_Line1: e.target.value}})} />
-                    <input
-                        value={student.Gaurdian2Address_Line2}
-                        onChange={e => this.setState({ student: {...student, Gaurdian2Address_Line2: e.target.value}})} />
+                        Address Line 2:{" "}
+                        <input
+                            value={student.Address_Line2}
+                            onChange={e => this.setState({ student: {...student, Address_Line2: e.target.value}})} />
+                            <br/>
 
-                    <input
-                        value={student.Gaurdian2Email}
-                        onChange={e => this.setState({ student: {...student, Gaurdian2Email: e.target.value}})} />
+                        City:{" "}
+                        <input
+                            value={student.City}
+                            onChange={e => this.setState({ student: {...student, City: e.target.value}})} />
+                            <br/>
 
-                    <input
-                        value={student.Gaurdian2Phone}
-                        onChange={e => this.setState({ student: {...student, Gaurdian2Phone: e.target.value}})} />
+                        State:{" "}
+                        <input
+                            value={student.State}
+                            onChange={e => this.setState({ student: {...student, State: e.target.value}})} />
+                            <br/>
 
+                        Zip:{" "}
+                        <input
+                            value={student.Zip}
+                            onChange={e => this.setState({ student: {...student, Zip: e.target.value}})} />
+                            <br/>
 
+                        Birthdate:{" "}
+                        <input
+                            value={student.Birthdate}
+                            onChange={e => this.setState({ student: {...student, Birthdate: e.target.value}})} />
+                            <br/>
 
-                    <button onClick={this.addStudent}>Add Student</button><input
-                        value={student.Gaurdian2Address_Line2}
-                        onChange={e => this.setState({ student: {...student, Gaurdian2Address_Line2: e.target.value}})} />
+                        Gender:{" "}
+                        <input
+                            value={student.Gender}
+                            onChange={e => this.setState({ student: {...student, Gender: e.target.value}})} />
+                            <br/>
+
+                        Ethnicity:{" "}
+                        <input
+                            value={student.Ethnicity}
+                            onChange={e => this.setState({ student: {...student, Ethnicity: e.target.value}})} />
+                            <br/>
+
+                        Type of School:{" "}
+                        <input
+                            value={student.SchoolType}
+                            onChange={e => this.setState({ student: {...student, SchoolType: e.target.value}})} />
+                            <br/>
+
+                        Name of School:{" "}
+                        <input
+                            value={student.SchoolName}
+                            onChange={e => this.setState({ student: {...student, SchoolName: e.target.value}})} />
+                            <br/>
+
+                        School District:{" "}
+                        <input
+                            value={student.SchoolDistrict}
+                            onChange={e => this.setState({ student: {...student, SchoolDistrict: e.target.value}})} />
+                            <br/>
+
+                        Upcoming Grade:{" "}
+                        <input
+                            value={student.NextClass}
+                            onChange={e => this.setState({ student: {...student, NextClass: e.target.value}})} />
+                            <br/>
+
+                        Graduation Year:{" "}
+                        <input
+                            value={student.GraduationYear}
+                            onChange={e => this.setState({ student: {...student, GraduationYear: e.target.value}})} />
+                            <br/>
+
+                        Email:{" "}
+                        <input
+                            value={student.Email}
+                            onChange={e => this.setState({ student: {...student, Email: e.target.value}})} />
+                            <br/>
+
+                        Phone Number:{" "}
+                        <input
+                            value={student.PhoneNumber}
+                            onChange={e => this.setState({ student: {...student, PhoneNumber: e.target.value}})} />
+                            <br/>
+
+                        Gifted and Talented?:{" "}
+                        <input
+                            value={student.GT}
+                            onChange={e => this.setState({ student: {...student, GT: e.target.value}})} />
+                            <br/>
+
+                        Gaurdian #1 name: {" "}
+                        <input
+                            value={student.Gaurdian1}
+                            onChange={e => this.setState({ student: {...student, Gaurdian1: e.target.value}})} />
+                            <br/>
+
+                        Gaurdian #1 Address Line 1: {" "}
+                        <input
+                            value={student.Gaurdian1Address_Line1}
+                            onChange={e => this.setState({ student: {...student, Gaurdian1Address_Line1: e.target.value}})} />
+                            <br/>
+
+                        Gaurdian #1 Address Line 2: {" "}
+                        <input
+                            value={student.Gaurdian1Address_Line2}
+                            onChange={e => this.setState({ student: {...student, Gaurdian1Address_Line2: e.target.value}})} />
+                            <br/>
+
+                        Gaurdian #1 Email: {" "}
+                        <input
+                            value={student.Gaurdian1Email}
+                            onChange={e => this.setState({ student: {...student, Gaurdian1Email: e.target.value}})} />
+                            <br/>
+
+                        Gaurdian #1 Phone Number: {" "}
+                        <input
+                            value={student.Gaurdian1Phone}
+                            onChange={e => this.setState({ student: {...student, Gaurdian1Phone: e.target.value}})} />
+                            <br/>
+
+                        Gaurdian #2 name: {" "}
+                        <input
+                            value={student.Gaurdian2}
+                            onChange={e => this.setState({ student: {...student, Gaurdian2: e.target.value}})} />
+                            <br/>
+
+                        Gaurdian #2 Address Line 1: {" "}
+                        <input
+                            value={student.Gaurdian2Address_Line1}
+                            onChange={e => this.setState({ student: {...student, Gaurdian2Address_Line1: e.target.value}})} />
+                            <br/>
+
+                        Gaurdian #2 Address Line 2: {" "}
+                        <input
+                            value={student.Gaurdian2Address_Line2}
+                            onChange={e => this.setState({ student: {...student, Gaurdian2Address_Line2: e.target.value}})} />
+                            <br/>
+
+                        Gaurdian #2 Email: {" "}
+                        <input
+                            value={student.Gaurdian2Email}
+                            onChange={e => this.setState({ student: {...student, Gaurdian2Email: e.target.value}})} />
+                            <br/>
+
+                        Gaurdian #2 Phone Number: {" "}
+                        <input
+                            value={student.Gaurdian2Phone}
+                            onChange={e => this.setState({ student: {...student, Gaurdian2Phone: e.target.value}})} />
+                            <br/>
+
+                            <button onClick={this.addStudent}>Add Student</button>
+                    </div>
                 </div>
             </div>
         );

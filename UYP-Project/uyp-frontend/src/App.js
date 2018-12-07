@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import AddStudentPage from './AddStudentPage.js';
 
 class App extends Component {
 
     state = {
         students: [],
-        /*student: {
+        student: {
             StudentID: '',
             FirstName: '',
             LastName: '',
@@ -51,7 +52,7 @@ class App extends Component {
             Mentor: '',
             Disability: '',
             Health: ''
-        },*/
+        },
         pageVal: 0
     }
 
@@ -82,21 +83,9 @@ class App extends Component {
         return (
             <div className="App">
                 {students.map(this.renderStudent)}
-
+                {console.log('I am running!')}
                 <div>
-                    <input
-                        value={student.ID}
-                        onChange={e => this.setState({ student: {...student, ID: e.target.value}})} />
-                    <input
-                        value={student.FirstName}
-                        onChange={e => this.setState({ student: {...student, FirstName: e.target.value}})} />
-                    <input
-                        value={student.MiddleName}
-                        onChange={e => this.setState({ student: {...student, MiddleName: e.target.value}})} />
-                    <input
-                        value={student.LastName}
-                        onChange={e => this.setState({ student: {...student, LastName: e.target.value}})} />
-                    <button onClick={this.addStudent}>Add Student</button>
+                    <AddStudentPage/>
                 </div>
             </div>
         );
