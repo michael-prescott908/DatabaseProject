@@ -51,14 +51,13 @@ class App extends Component {
             FundingName: '',
             Mentor: '',
             Disability: '',
-            Health: ''
+            Health: '',
+            AcceptedSatte: 'Unaccepted'
         },
         pageVal: 0
     }
 
-    componentDidMount() {
-        this.getStudents();
-    }
+
 
     getStudents = _ => {
         fetch('http://localhost:4000/students')
@@ -68,27 +67,49 @@ class App extends Component {
             .catch(err => console.log(err))
     }
 
-    addStudent = _ => {
-        const { student } = this.state;
-        fetch(`http://localhost:4000/students/add?ID=${student.ID}&FirstName=${student.FirstName}&MiddleName=${student.MiddleName}&LastName=${student.LastName}`)
-            .then(response => response.json())
-            .then(this.getStudents)
-            .catch(err => console.error(err))
+    AddStudentPage = () =>{
+      this.setState({
+        pageVal: 1
+      });
+    }
+
+    goBack = () => {
+      this.setState({
+        pageVal: 0
+      });
     }
 
     renderStudent = ({ ID, FirstName, MiddleName, LastName}) => <div key={ID}>{ID}, {FirstName}, {MiddleName}, {LastName}</div>
 
     render() {
-        const { students, student } = this.state;
+
+        if(this.state.pageVal === 0){
         return (
-            <div className="App">
-                {students.map(this.renderStudent)}
+            <div className="App" align="center">
+                Welcome to the University for Young People!
                 {console.log('I am running!')}
                 <div>
-                    <AddStudentPage/>
+                <button />
+                    <button onClick={this.AddStudentPage}>Add Student</button>
                 </div>
             </div>
         );
+      }
+
+      else if (this.state.pageVal === 1) {
+        return (
+            <div className="App">
+                {console.log('I am running!')}
+                <div>
+                <button />
+                    <AddStudentPage/>
+                    <div align="left">
+                      <button onClick={this.goBack}>Back</button>
+                    </div>
+                </div>
+            </div>
+          );
+      }
     }
 }
 
