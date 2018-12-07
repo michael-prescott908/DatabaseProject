@@ -11,7 +11,8 @@ class App extends Component {
             FirstName: '',
             MiddleName: '',
             LastName: ''
-        }
+        },
+        pageVal: 0
     }
 
     componentDidMount() {
