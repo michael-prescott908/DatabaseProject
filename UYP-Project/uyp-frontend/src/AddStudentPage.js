@@ -49,7 +49,8 @@ class AddStudentPage extends Component {
         FundingName: '',
         Mentor: '',
         Disability: '',
-        Health: ''
+        Health: '',
+        AcceptedSatte: 'Unaccepted'
       }
     }
 
@@ -65,12 +66,16 @@ class AddStudentPage extends Component {
             .catch(err => console.error(err))
     }
 
+    goBack = () => {
+
+    }
+
     render() {
         const { student } = this.state;
         return (
             <div className="AddStudentPage">
                 <div align="center">
-                    Welcome to the application! <br/>
+                    Welcome to the UYP application! <br/>
                     Please fill out the required information!<br/><br/><br/>
                     <div align="left">
                         Student First Name:{" "}
@@ -260,6 +265,8 @@ class AddStudentPage extends Component {
                             <br/>
 
                             <button onClick={this.addStudent}>Add Student</button>
+                            <br/>
+
                     </div>
                 </div>
             </div>
