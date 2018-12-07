@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import Cookies from 'universal-cookie';
+const uuidv4 = require('uuid/v4');
 
 class AddStudentPage extends Component {
 
@@ -59,8 +61,12 @@ class AddStudentPage extends Component {
     }*/
 
     addStudent = _ => {
-        const { student } = this.state;
-        fetch(`db.summersend.serverswc.com/students/add?ID=${this.state.student.ID}&FirstName=${this.state.student.FirstName}&LastName=${this.state.student.LastName}&MiddleInitial=${this.state.student.MiddleName}
+        //const { student } = this.state;
+        console.log(this.state.student);
+        const cookies = new Cookies();
+        cookies.set('user', this.state.student, {path: '/'});
+        console.log(cookies.get('user').valueOf());
+        fetch(`db.summersend.serverswc.com/students/add?ID=${this.state.student.StudentID}&FirstName=${this.state.student.FirstName}&LastName=${this.state.student.LastName}&MiddleInitial=${this.state.student.MiddleName}
               &Suffix=${this.state.student.Suffix}&Nickname=${this.state.student.Nickname}&SchoolType=${this.state.student.SchoolType}&SchoolName=${this.state.student.SchoolName}&SchoolDistrict=${this.state.student.SchoolDistrict}
               &NextClass=${this.state.student.NextClass}&ExpectedHighSchool=${this.state.student.ExpectedHighSchool}&Address_Line1=${this.state.student.Address_Line1}&Address_Line2=${this.state.student.Address_Line2}
               &City=${this.state.student.City}&State=${this.state.student.State}&Zip=${this.state.student.Zip}&Birthdate=${this.state.student.Birthdate}&Gender=${this.state.student.Gender}&Ethnicity=${this.state.student.Ethnicity}
@@ -88,7 +94,7 @@ class AddStudentPage extends Component {
                         Student First Name:{" "}
                         <input
                             value={student.FirstName}
-                            onChange={e => this.setState({ student: {...student, FirstName: e.target.value}})} />
+                            onChange={e => this.setState({ student: {...student, FirstName: e.target.value, StudentID: uuidv4()}})} />
                             <br/>
 
                         Student Last Name:{" "}
@@ -270,9 +276,8 @@ class AddStudentPage extends Component {
                             value={student.Gaurdian2Phone}
                             onChange={e => this.setState({ student: {...student, Gaurdian2Phone: e.target.value}})} />
                             <br/>
-
-                            <button onClick={this.addStudent}>Add Student</button>
-                            <br/>
+                        <button onClick={this.addStudent}>Add Student</button>
+                          <br/>
                     </div>
                 </div>
             </div>
