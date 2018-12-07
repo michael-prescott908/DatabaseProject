@@ -6,12 +6,52 @@ class App extends Component {
 
     state = {
         students: [],
-        student: {
-            ID: '',
+        /*student: {
+            StudentID: '',
             FirstName: '',
-            MiddleName: '',
-            LastName: ''
-        },
+            LastName: '',
+            MiddleInitial: '',
+            Suffix: '',
+            Nickname: '',
+            SchoolType: '',
+            SchoolName: '',
+            SchoolDistrict: '',
+            NextClass: '',
+            ExpectedHighSchool: '',
+            Address_Line1: '',
+            Address_Line2: '',
+            City: '',
+            State: '',
+            Zip: '',
+            Birthdate: '',
+            Gender: '',
+            Ethnicity: '',
+            PhoneNumber: '',
+            Email: '',
+            GraduationYear: '',
+            Siblings: '',
+            Gaurdian1: '',
+            Gaurdian1Address_Line1: '',
+            Gaurdian1Address_Line2: '',
+            Gaurdian1Email: '',
+            Gaurdian1Phone: '',
+            Gaurdian2: '',
+            Gaurdian2Address_Line1: '',
+            Gaurdian2Address_Line2: '',
+            Gaurdian2Email: '',
+            Gaurdian2Phone: '',
+            GT: '',
+            EnglishLearner: '',
+            NationalClearingHouse: '',
+            YearAccepted: '',
+            GradeAccepted: '',
+            EnrollmentStatus: '',
+            FundingStatus: '',
+            FundingName: '',
+            Mentor: '',
+            Disability: '',
+            Health: ''
+        },*/
         pageVal: 0
     }
 
