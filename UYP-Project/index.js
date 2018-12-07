@@ -6,6 +6,19 @@ const app = express();
 
 const SELECT_All_STUDENTS = 'SELECT * FROM STUDENTS';
 
+var whitelist = ['http://db.summersend.serverswc.com']
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}
+
+app.use(cors(corsOptions));
+
 const connection = mysql.createConnection({
     host: 'db.summersend.serverswc.com',
     user: 'michael',
@@ -20,15 +33,13 @@ connection.connect(err => {
     }
 });
 
-app.use(cors());
-
 app.get('/', (req, res) => {
     res.send('hello from the students server')
 });
 
 app.get('/students/add', (req, res) => {
     console.log('I am adding a student');
-    const { ID, FirstName, MiddleName, LastName } = req.query;
+    /*const { ID, FirstName, MiddleName, LastName } = req.query;
     const INSERT_STUDENT = `INSERT INTO Students (ID, FirstName, MiddleName, LastName) ` +
     `VALUES (${ID}, '${FirstName}', '${MiddleName}', '${LastName}')`
     console.log(ID, FirstName, MiddleName, LastName);
@@ -39,7 +50,7 @@ app.get('/students/add', (req, res) => {
         else {
             return res.send('Student was added')
         }
-    });
+    });*/
 });
 
 app.get('/students', (req, res) => {
@@ -56,6 +67,6 @@ app.get('/students', (req, res) => {
 });
 
 app.listen(4000, () => {
-    console.log('Products server listening on ' +
+    console.log('Students server listening on ' +
     'port 4000')
 });

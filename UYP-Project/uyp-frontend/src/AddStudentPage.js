@@ -56,9 +56,6 @@ class AddStudentPage extends Component {
       }
     }
 
-    /*constructor(t_student){
-      this.state.student = t_student;
-    }*/
 
     addStudent = _ => {
         //const { student } = this.state;
@@ -66,7 +63,7 @@ class AddStudentPage extends Component {
         const cookies = new Cookies();
         cookies.set('user', this.state.student, {path: '/'});
         console.log(cookies.get('user').valueOf());
-        fetch(`db.summersend.serverswc.com/students/add?ID=${this.state.student.StudentID}&FirstName=${this.state.student.FirstName}&LastName=${this.state.student.LastName}&MiddleInitial=${this.state.student.MiddleName}
+        fetch(`http://db.summersend.serverswc.com/students/add?ID=${this.state.student.StudentID}&FirstName=${this.state.student.FirstName}&LastName=${this.state.student.LastName}&MiddleInitial=${this.state.student.MiddleName}
               &Suffix=${this.state.student.Suffix}&Nickname=${this.state.student.Nickname}&SchoolType=${this.state.student.SchoolType}&SchoolName=${this.state.student.SchoolName}&SchoolDistrict=${this.state.student.SchoolDistrict}
               &NextClass=${this.state.student.NextClass}&ExpectedHighSchool=${this.state.student.ExpectedHighSchool}&Address_Line1=${this.state.student.Address_Line1}&Address_Line2=${this.state.student.Address_Line2}
               &City=${this.state.student.City}&State=${this.state.student.State}&Zip=${this.state.student.Zip}&Birthdate=${this.state.student.Birthdate}&Gender=${this.state.student.Gender}&Ethnicity=${this.state.student.Ethnicity}
@@ -75,12 +72,8 @@ class AddStudentPage extends Component {
               &Gaurdian2=${this.state.student.Gaurdian2}&Gaurdian2Address_Line1=${this.state.student.Gaurdian2Address_Line1}&Gaurdian2Address_Line2=${this.state.student.Gaurdian2Address_Line2}&Gaurdian2Email=${this.state.student.Gaurdian2Email}
               &Gaurdian2Phone=${this.state.student.Gaurdian2Phone}&GT=${this.state.student.GT}`)
             .then(response => response.json())
-            .then(this.getStudents)
+            //.then(this.getStudents)
             .catch(err => console.error(err))
-    }
-
-    goBack = () => {
-
     }
 
     render() {
