@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <div class="jumbotron text-center">
+    <h1>University for Young People (UYP)</h1>
+    <p class="lead">Welcome to the University for Young People Application!<br/>
+    Click below to get started!</p>
+    {% if session.logged_in == NULL %}
+      <a href="/register" class="btn btn-primary btn-lg">Register</a>
+    {% endif %}
+  </div>
+{% endblock %}
