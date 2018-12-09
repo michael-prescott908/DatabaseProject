@@ -1,9 +1,11 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, request, logging
 #from data import Articles
 from flask_mysqldb import MySQL
-from wtforms import Form, StringField, TextAreaField, PasswordField, validators
+from wtforms import Form, StringField, TextAreaField, PasswordField, validators, SelectField
 from passlib.hash import sha256_crypt
 from functools import wraps
+import collections
+
 
 app = Flask(__name__)
 
@@ -65,16 +67,113 @@ def article(id):
     return render_template('article.html', article=article)
 
 
-# Register Form Class
+def reformat_phone(form, field):
+    field.data = field.data.replace('-', '')
+    return True
+
+
+STATE_ABBREV = [('--Select--', '--Select--'), ('Alabama', 'Alabama'), ('Alaska', 'Alaska'), ('Arizona', 'Arizona'), ('Arkansas', 'Arkansas'), ('California', 'California'), ('Colorado', 'Colorado'),
+                ('Connecticut', 'Connecticut'), ('Delaware', 'Delaware'), ('Florida', 'Florida'), ('Georgia', 'Georgia'), ('Hawaii', 'Hawaii'), ('Idaho', 'Idaho'),
+                ('Illinois', 'Illinois'), ('Indiana', 'Indiana'), ('Iowa', 'Iowa'), ('Kansas', 'Kansas'), ('Kentucky', 'Kentucky'), ('Louisiana', 'Louisiana'),
+                ('Maine', 'Maine'), ('Maryland', 'Maryland'), ('Massachusetts', 'Massachusetts'), ('Michigan', 'Michigan'), ('Minnesota', 'Minnesota'),
+                ('Mississippi', 'Mississippi'), ('Missouri', 'Missouri'), ('Montana', 'Montana'), ('Nebraska', 'Nebraska'), ('Nevada', 'Nevada'),
+                 ('New Hampshire', 'New Hampshire'), ('New Jersey', 'New Jersey'),('New Mexico', 'New Mexico'), ('New York', 'New York'),
+                 ('North Carolina', 'North Carolina'), ('North Dakota', 'North Dakota'), ('Ohio', 'Ohio'), ('Oklahoma', 'Oklahoma'), ('Oregon', 'Oregon'),
+                 ('Pennsylvania', 'Pennsylvania'), ('Rhode Island', 'Rhode Island'), ('South Carolina', 'South Carolina'), ('South Dakota', 'South Dakota'),
+                 ('Tennessee', 'Tennessee'), ('Texas', 'Texas'), ('Utah', 'Utah'), ('Vermont', 'Vermont'), ('Virginia', 'Virginia'), ('Washington', 'Washington'),
+                 ('West Virginia', 'West Virginia'), ('Wisconsin', 'Wisconsin'), ('Wyoming', 'Wyoming')]
+
+GENDER_ABBREV = (('--Select--', '--Select--'), ('Male', 'Male'), ('Female', 'Female'), ('Prefer not to answer', 'Prefer not to answer'))
+
+BOOL_ABBREV = ( ('--Select--', '--Select--'), ('Yes', 'Yes'), ('No', 'No'), ('I\'m not sure', 'I\'m not sure'))
+
+SCHOOL_TYPES = (('--Select--', '--Select--'), ('Public', 'Public'), ('Private', 'Private'), ('Home', 'Home'))
+
+CLASS_TYPES = (('--Select--', '--Select--'), ('4th', '4th'), ('5th', '5th'), ('6th', '6th'), ('7th', '7th'), ('8th', '8th'),
+                ('9th', '9th'), ('10th', '10th'), ('11th', '11th'), ('12th', '12th'))
+
+SUFFIX_TYPES = (('--Select--', '--Select--'), ('II','II'), ('III', 'III'), ('IV', 'IV'), ('Jr', 'Jr'), ('Sr', 'Sr'))
+
+#def list_to_ordered_pairs(input_list):
+#    ordered_pairs = collections.OrderedDict()
+#    for item in input_list:
+#        ordered_pairs[item] = item
+#    return ordered_pairs
+
+#state_pairs = list_to_ordered_pairs(STATE_ABBREV)
+
+# Register Form
 class RegisterForm(Form):
-    name = StringField('Name', [validators.Length(min=1, max=50)])
-    username = StringField('Username', [validators.Length(min=4, max=25)])
-    email = StringField('Email', [validators.Length(min=6, max=50)])
-    password = PasswordField('Password', [
-        validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords do not match')
-    ])
-    confirm = PasswordField('Confirm Password')
+    FirstName = StringField('First Name', [validators.Regexp('/^[A-Za-z]+$/'),
+                                           validators.Length(min=1, max=50)])
+    LastName = StringField('Last Name', [validators.Regexp('/^[A-Za-z]+$/'),
+                                         validators.Length(min=1, max=50)])
+    MiddleInit = StringField('Middle Initial', [validators.Regexp('/^[A-Za-z]+$/'),
+                                                validators.Length(min=1, max=1)])
+    Suffix = SelectField(label='Suffix', choices=SUFFIX_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
+    PreferredName = StringField('Preferred Name', [validators.Regexp('/^[A-Za-z]+$/'),
+                                                   validators.Length(min=1, max=50)])
+    AddressLine1 = StringField('Address Line 1', [validators.Regexp('^\w+$'),
+                                                  validators.Length(min=1, max=50)])
+    AddressLine2 = StringField('Address Line 2', [validators.Regexp('^\w+$'),
+                                                  validators.Length(min=1, max=50)])
+    City = StringField('City', [validators.Regexp('/^[A-Za-z]+$/'),
+                                validators.Length(min=1, max=50)])
+    State = SelectField(label='State', choices=STATE_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    Zip = StringField('Zip', [validators.Regexp('/^[1234567890]+$/'),
+                                validators.Length(min=5, max=5)])
+    Birthdate = StringField('Brithdate', [validators.Regexp('/^[1234567890]+$/'),
+                                          validators.Length(min=1, max=50)])
+    Gender = SelectField(label='Gender', choices=GENDER_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    Ethnicity = StringField('Ethnicity', [validators.Regexp('/^[A-Za-z]+$/'),
+                                          validators.Length(min=1, max=50)])
+    Schooltype = SelectField(label='Type of schooling', choices=SCHOOL_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
+    Schoolname = StringField('School Name', [validators.Regexp('/^[A-Za-z]+$/'),
+                                             validators.Length(min=1, max=50)])
+    Schoolgrade = SelectField(label='Upcoming Grade', choices=CLASS_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
+
+    #TODO: Fix this
+    Graduationyear = StringField('Graduation Year', [validators.Regexp('/^[1234567890]+$/'),
+                                                     validators.Length(min=4, max=4)])
+    Expectedhighschool = StringField('Expected Highschool', [validators.Regexp('/^[A-Za-z]+$/'),
+                                                             validators.Length(min=1, max=50)])
+    Email = StringField('Email', [validators.Regexp('^\w+[@]\w+[.]\w+$'),
+                                  validators.Length(min=6, max=50)])
+    PhoneNumber = StringField('Phone Number', [validators.Regexp('^\d+$'),
+                                               validators.Length(min=10, max=10)])
+    Siblingnames = StringField('List Siblings in UYP (If Any) ([FirstName] [LastName], etc.])', [validators.Regexp('/^[A-Za-z]+\s[A-Za-z]+[,]\s$/'),
+                                                                                                 validators.Length(min=1, max=100)])
+    Gaurdian1Name = StringField('Gaurdian 1 Name', [validators.Regexp('/^[A-Za-z]+\s[A-Za-z]+$/'),
+                                                    validators.Length(min=1, max=50)])
+    Gaurdian1AddressLine1 = StringField('Gaurdian 1 Address Line 1', [validators.Regexp('^\w+$'),
+                                                                      validators.Length(min=1, max=50)])
+    Gaurdian1AddressLine2 = StringField('Gaurdian 1 Address Line 2', [validators.Regexp('^\w+$'),
+                                                                      validators.Length(min=1, max=50)])
+    Gaurdian1email = StringField('Gaurdian 1 Email', [validators.Regexp('^\w+[@]\w+[.]\w+$'),
+                                                      validators.Length(min=6, max=50)])
+    Gaurdian1homephone = StringField('Gaurdian 1 Home Phone', [validators.Regexp('^\d+$'),
+                                                               validators.Length(min=10, max=10)])
+    Gaurdian1workphone = StringField('Gaurdian 1 Work Phone', [validators.Regexp('^\d+$'),
+                                                               validators.Length(min=10, max=10)])
+    Gaurdian1cellphone = StringField('Gaurdian 1 Cell Phone', [validators.Regexp('^\d+$'),
+                                                               validators.Length(min=10, max=10)])
+    Gaurdian2Name = StringField('Gaurdian 2 Name', [validators.Regexp('/^[A-Za-z]+\s[A-Za-z]+$/'),
+                                                    validators.Length(min=1, max=50)])
+    Gaurdian2AddressLine1 = StringField('Gaurdian 2 Address Line 1', [validators.Regexp('^\w+$'),
+                                                                      validators.Length(min=1, max=50)])
+    Gaurdian2AddressLine2 = StringField('Gaurdian 2 Address Line 2', [validators.Regexp('^\w+$'),
+                                                                      validators.Length(min=1, max=50)])
+    Gaurdian2email = StringField('Gaurdian 2 Email', [validators.Regexp('^\w+[@]\w+[.]\w+$'),
+                                                      validators.Length(min=6, max=50)])
+    Gaurdian2homephone = StringField('Gaurdian 2 Home Phone', [validators.Regexp('^\d+$'),
+                                                               validators.Length(min=10, max=10)])
+    Gaurdian2workphone = StringField('Gaurdian 2 Work Phone', [validators.Regexp('^\d+$'),
+                                                               validators.Length(min=10, max=10)])
+    Gaurdian2cellphone = StringField('Gaurdian 2 Cell Phone', [validators.Regexp('^\d+$'),
+                                                               validators.Length(min=10, max=10)])
+    GiftedTalented = SelectField(label='Gifted and Talented?', choices=BOOL_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+
+
 
 
 # User Register
