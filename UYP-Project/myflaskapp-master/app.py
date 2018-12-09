@@ -1,10 +1,11 @@
-from flask import Flask, render_template, flash, redirect, url_for, session, request, logging
+from flask import Flask, render_template, flash, redirect, url_for, session, request, logging, jsonify
 #from data import Articles
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators, SelectField
 from passlib.hash import sha256_crypt
 from functools import wraps
 import collections
+import uuid
 
 
 app = Flask(__name__)
@@ -24,6 +25,14 @@ mysql = MySQL(app)
 # Index
 @app.route('/')
 def index():
+    cur = mysql.connection.cursor()
+
+    cur.execute("SELECT * FROM Student")
+
+    result = cur.fetchall()
+
+    flash(result)
+
     return render_template('home.html')
 
 
@@ -104,6 +113,8 @@ SUFFIX_TYPES = (('--Select--', '--Select--'), ('II','II'), ('III', 'III'), ('IV'
 
 # Register Form
 class RegisterForm(Form):
+    StudentID = uuid.uuid4()
+
     FirstName = StringField('First Name', [validators.Regexp('^[A-Za-z]+$'),
                                            validators.Length(min=1, max=50)])
     LastName = StringField('Last Name', [validators.Regexp('^[A-Za-z]+$'),
@@ -113,16 +124,16 @@ class RegisterForm(Form):
     Suffix = SelectField(label='Suffix', choices=SUFFIX_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
     PreferredName = StringField('Preferred Name', [validators.Regexp('^[A-Za-z]+$'),
                                                    validators.Length(min=1, max=50)])
-    AddressLine1 = StringField('Address Line 1', [validators.Regexp('^\w+$'),
+    AddressLine1 = StringField('Address Line 1', [validators.Regexp('^(.*?)+$'),
                                                   validators.Length(min=1, max=50)])
-    AddressLine2 = StringField('Address Line 2', [validators.Regexp('^\w+$'),
+    AddressLine2 = StringField('Address Line 2', [validators.Regexp('^(.*?)+$'),
                                                   validators.Length(min=1, max=50)])
     City = StringField('City', [validators.Regexp('^[A-Za-z]+$'),
                                 validators.Length(min=1, max=50)])
     State = SelectField(label='State', choices=STATE_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
     Zip = StringField('Zip', [validators.Regexp('^[1234567890]+$'),
                                 validators.Length(min=5, max=5)])
-    Birthdate = StringField('Brithdate', [validators.Regexp('^[1234567890]+$'),
+    Birthdate = StringField('Birthdate', [validators.Regexp('^[1234567890]+$'),
                                           validators.Length(min=1, max=50)])
     Gender = SelectField(label='Gender', choices=GENDER_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
     Ethnicity = StringField('Ethnicity', [validators.Regexp('^[A-Za-z]+$'),
@@ -179,25 +190,39 @@ class RegisterForm(Form):
 # User Register
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    print("I am here")
     form = RegisterForm(request.form)
+    print("I am here")
     if request.method == 'POST' and form.validate():
+        StudentID = form.StudentID
         FirstName = form.FirstName.data
         LastName = form.LastName.data
         MiddleInit = form.MiddleInit.data
+        Suffix = form.Suffix.data
+        Nickname = form.PreferredName.data
+        Address_Line1 = form.AddressLine1.data
+        Address_Line2 = form.AddressLine2.data
+        City = form.City.data
+        State = form.State.data
+        Zip = form.Zip.data
+        Birthdate = form.Birthdate.data
+        Gender = form.Gender.data
+        Ethnicity = form.Ethnicity.data
+        PhoneNumber = form.PhoneNumber.data
+        Email = form.Email.data
+        GraduationYear = form.Graduationyear.data
+        GT = form.GiftedTalented.data
+
         print(FirstName + " " + LastName + " " + MiddleInit)
-        # Create cursor
-        #cur = mysql.connection.cursor()
-
-        # Execute query
-        #cur.execute("INSERT INTO Student(name, email, username, password) VALUES(%s, %s, %s, %s)", (name, email, username, password))
-
-        # Commit to DB
-        #mysql.connection.commit()
-
-        # Close connection
-        #cur.close()
-
+            #spits out any and all errors**
+            # Create cursor
+        cur = mysql.connection.cursor()
+            # Execute query
+        cur.execute("INSERT INTO Student(StudentID, FirstName, LastName, MiddleInitial, Suffix, Nickname, Address_Line1, Address_Line2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GraduationYear, GT, EnglishLearner, NationalClearingHouse) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                        (StudentID, FirstName, LastName, MiddleInit, Suffix, Nickname, Address_Line1, Address_Line2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GraduationYear, GT, 0, 'Test'))
+            # Commit to DB
+        mysql.connection.commit()
+            # Close connection
+        cur.close()
         flash('You have successfuly registered for UYP!', 'success')
 
         return redirect('/')
