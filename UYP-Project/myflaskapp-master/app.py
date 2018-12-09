@@ -104,50 +104,50 @@ SUFFIX_TYPES = (('--Select--', '--Select--'), ('II','II'), ('III', 'III'), ('IV'
 
 # Register Form
 class RegisterForm(Form):
-    FirstName = StringField('First Name', [validators.Regexp('/^[A-Za-z]+$/'),
+    FirstName = StringField('First Name', [validators.Regexp('^[A-Za-z]+$'),
                                            validators.Length(min=1, max=50)])
-    LastName = StringField('Last Name', [validators.Regexp('/^[A-Za-z]+$/'),
+    LastName = StringField('Last Name', [validators.Regexp('^[A-Za-z]+$'),
                                          validators.Length(min=1, max=50)])
-    MiddleInit = StringField('Middle Initial', [validators.Regexp('/^[A-Za-z]+$/'),
+    MiddleInit = StringField('Middle Initial', [validators.Regexp('^[A-Za-z]+$'),
                                                 validators.Length(min=1, max=1)])
     Suffix = SelectField(label='Suffix', choices=SUFFIX_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
-    PreferredName = StringField('Preferred Name', [validators.Regexp('/^[A-Za-z]+$/'),
+    PreferredName = StringField('Preferred Name', [validators.Regexp('^[A-Za-z]+$'),
                                                    validators.Length(min=1, max=50)])
     AddressLine1 = StringField('Address Line 1', [validators.Regexp('^\w+$'),
                                                   validators.Length(min=1, max=50)])
     AddressLine2 = StringField('Address Line 2', [validators.Regexp('^\w+$'),
                                                   validators.Length(min=1, max=50)])
-    City = StringField('City', [validators.Regexp('/^[A-Za-z]+$/'),
+    City = StringField('City', [validators.Regexp('^[A-Za-z]+$'),
                                 validators.Length(min=1, max=50)])
     State = SelectField(label='State', choices=STATE_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
-    Zip = StringField('Zip', [validators.Regexp('/^[1234567890]+$/'),
+    Zip = StringField('Zip', [validators.Regexp('^[1234567890]+$'),
                                 validators.Length(min=5, max=5)])
-    Birthdate = StringField('Brithdate', [validators.Regexp('/^[1234567890]+$/'),
+    Birthdate = StringField('Brithdate', [validators.Regexp('^[1234567890]+$'),
                                           validators.Length(min=1, max=50)])
     Gender = SelectField(label='Gender', choices=GENDER_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
-    Ethnicity = StringField('Ethnicity', [validators.Regexp('/^[A-Za-z]+$/'),
+    Ethnicity = StringField('Ethnicity', [validators.Regexp('^[A-Za-z]+$'),
                                           validators.Length(min=1, max=50)])
     Schooltype = SelectField(label='Type of schooling', choices=SCHOOL_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
-    Schoolname = StringField('School Name', [validators.Regexp('/^[A-Za-z]+$/'),
+    Schoolname = StringField('School Name', [validators.Regexp('^[A-Za-z]+$'),
                                              validators.Length(min=1, max=50)])
     Schoolgrade = SelectField(label='Upcoming Grade', choices=CLASS_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
 
     #TODO: Fix this
-    Graduationyear = StringField('Graduation Year', [validators.Regexp('/^[1234567890]+$/'),
+    Graduationyear = StringField('Graduation Year', [validators.Regexp('^[1234567890]+$'),
                                                      validators.Length(min=4, max=4)])
-    Expectedhighschool = StringField('Expected Highschool', [validators.Regexp('/^[A-Za-z]+$/'),
+    Expectedhighschool = StringField('Expected Highschool', [validators.Regexp('^[A-Za-z]+$'),
                                                              validators.Length(min=1, max=50)])
     Email = StringField('Email', [validators.Regexp('^\w+[@]\w+[.]\w+$'),
                                   validators.Length(min=6, max=50)])
     PhoneNumber = StringField('Phone Number', [validators.Regexp('^\d+$'),
                                                validators.Length(min=10, max=10)])
-    Siblingnames = StringField('List Siblings in UYP (If Any) ([FirstName] [LastName], etc.])', [validators.Regexp('/^[A-Za-z]+\s[A-Za-z]+[,]\s$/'),
+    Siblingnames = StringField('List Siblings in UYP (If Any) ([FirstName] [LastName], etc.])', [validators.Regexp('(^[A-Za-z]+\s[A-Za-z]+[,]\s){0,20}$'),
                                                                                                  validators.Length(min=1, max=100)])
-    Gaurdian1Name = StringField('Gaurdian 1 Name', [validators.Regexp('/^[A-Za-z]+\s[A-Za-z]+$/'),
+    Gaurdian1Name = StringField('Gaurdian 1 Name', [validators.Regexp('^[A-Za-z]+\s[A-Za-z]+$'),
                                                     validators.Length(min=1, max=50)])
-    Gaurdian1AddressLine1 = StringField('Gaurdian 1 Address Line 1', [validators.Regexp('^\w+$'),
+    Gaurdian1AddressLine1 = StringField('Gaurdian 1 Address Line 1', [validators.Regexp('^(.*?)+$'),
                                                                       validators.Length(min=1, max=50)])
-    Gaurdian1AddressLine2 = StringField('Gaurdian 1 Address Line 2', [validators.Regexp('^\w+$'),
+    Gaurdian1AddressLine2 = StringField('Gaurdian 1 Address Line 2', [validators.Regexp('^(.*?)+$'),
                                                                       validators.Length(min=1, max=50)])
     Gaurdian1email = StringField('Gaurdian 1 Email', [validators.Regexp('^\w+[@]\w+[.]\w+$'),
                                                       validators.Length(min=6, max=50)])
@@ -157,11 +157,11 @@ class RegisterForm(Form):
                                                                validators.Length(min=10, max=10)])
     Gaurdian1cellphone = StringField('Gaurdian 1 Cell Phone', [validators.Regexp('^\d+$'),
                                                                validators.Length(min=10, max=10)])
-    Gaurdian2Name = StringField('Gaurdian 2 Name', [validators.Regexp('/^[A-Za-z]+\s[A-Za-z]+$/'),
+    Gaurdian2Name = StringField('Gaurdian 2 Name', [validators.Regexp('^[A-Za-z]+\s[A-Za-z]+$'),
                                                     validators.Length(min=1, max=50)])
-    Gaurdian2AddressLine1 = StringField('Gaurdian 2 Address Line 1', [validators.Regexp('^\w+$'),
+    Gaurdian2AddressLine1 = StringField('Gaurdian 2 Address Line 1', [validators.Regexp('^(.*?)+$'),
                                                                       validators.Length(min=1, max=50)])
-    Gaurdian2AddressLine2 = StringField('Gaurdian 2 Address Line 2', [validators.Regexp('^\w+$'),
+    Gaurdian2AddressLine2 = StringField('Gaurdian 2 Address Line 2', [validators.Regexp('^(.*?)+$'),
                                                                       validators.Length(min=1, max=50)])
     Gaurdian2email = StringField('Gaurdian 2 Email', [validators.Regexp('^\w+[@]\w+[.]\w+$'),
                                                       validators.Length(min=6, max=50)])
@@ -179,28 +179,28 @@ class RegisterForm(Form):
 # User Register
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    print("I am here")
     form = RegisterForm(request.form)
     if request.method == 'POST' and form.validate():
-        name = form.name.data
-        email = form.email.data
-        username = form.username.data
-        password = sha256_crypt.encrypt(str(form.password.data))
-
+        FirstName = form.FirstName.data
+        LastName = form.LastName.data
+        MiddleInit = form.MiddleInit.data
+        print(FirstName + " " + LastName + " " + MiddleInit)
         # Create cursor
-        cur = mysql.connection.cursor()
+        #cur = mysql.connection.cursor()
 
         # Execute query
-        cur.execute("INSERT INTO Student(name, email, username, password) VALUES(%s, %s, %s, %s)", (name, email, username, password))
+        #cur.execute("INSERT INTO Student(name, email, username, password) VALUES(%s, %s, %s, %s)", (name, email, username, password))
 
         # Commit to DB
-        mysql.connection.commit()
+        #mysql.connection.commit()
 
         # Close connection
-        cur.close()
+        #cur.close()
 
-        flash('You are now registered and can log in', 'success')
+        flash('You have successfuly registered for UYP!', 'success')
 
-        return redirect(url_for('login'))
+        return redirect('/')
     return render_template('register.html', form=form)
 
 
