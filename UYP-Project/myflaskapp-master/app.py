@@ -1,6 +1,8 @@
-from flask import Flask, render_template, flash, redirect, url_for, session, request, logging, jsonify
+from flask import Flask, render_template, flash, redirect, url_for, session, request, logging, jsonify, make_response
 #from data import Articles
 from flask_mysqldb import MySQL
+from flask_admin import Admin
+from flask_login import UserMixin
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators, SelectField
 from passlib.hash import sha256_crypt
 from functools import wraps
@@ -19,22 +21,10 @@ app.config['MYSQL_DB'] =  'dbproject'
 # init MYSQL
 mysql = MySQL(app)
 
-
-#Articles = Articles()
-
 # Index
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    cur = mysql.connection.cursor()
-
-    cur.execute("SELECT * FROM Student")
-
-    result = cur.fetchall()
-
-    flash(result)
-
     return render_template('home.html')
-
 
 # About
 @app.route('/about')
@@ -184,6 +174,12 @@ class RegisterForm(Form):
                                                                validators.Length(min=10, max=10)])
     GiftedTalented = SelectField(label='Gifted and Talented?', choices=BOOL_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
 
+    Password = PasswordField('Password', [
+        validators.DataRequired(),
+        validators.EqualTo('confirm', message='Passwords do not match')
+    ])
+    confirm = PasswordField('Confirm Password')
+
 
 
 
@@ -192,7 +188,7 @@ class RegisterForm(Form):
 def register():
     form = RegisterForm(request.form)
     print("I am here")
-    if request.method == 'POST' and form.validate():
+    if request.method == 'POST': #and form.validate():
         StudentID = form.StudentID
         FirstName = form.FirstName.data
         LastName = form.LastName.data
@@ -211,21 +207,22 @@ def register():
         Email = form.Email.data
         GraduationYear = form.Graduationyear.data
         GT = form.GiftedTalented.data
+        Password = sha256_crypt.encrypt(str(form.Password.data))
 
         print(FirstName + " " + LastName + " " + MiddleInit)
             #spits out any and all errors**
             # Create cursor
-        cur = mysql.connection.cursor()
+        #cur = mysql.connection.cursor()
             # Execute query
-        cur.execute("INSERT INTO Student(StudentID, FirstName, LastName, MiddleInitial, Suffix, Nickname, Address_Line1, Address_Line2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GraduationYear, GT, EnglishLearner, NationalClearingHouse) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                        (StudentID, FirstName, LastName, MiddleInit, Suffix, Nickname, Address_Line1, Address_Line2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GraduationYear, GT, 0, 'Test'))
+        #cur.execute("INSERT INTO Student(StudentID, FirstName, LastName, MiddleInitial, Suffix, Nickname, Address_Line1, Address_Line2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GraduationYear, GT, EnglishLearner, NationalClearingHouse) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                        #(StudentID, FirstName, LastName, MiddleInit, Suffix, Nickname, Address_Line1, Address_Line2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GraduationYear, GT, 0, 'Test'))
             # Commit to DB
-        mysql.connection.commit()
+        #mysql.connection.commit()
             # Close connection
-        cur.close()
+        #cur.close()
         flash('You have successfuly registered for UYP!', 'success')
 
-        return redirect('/')
+        return redirect('login')
     return render_template('register.html', form=form)
 
 
@@ -234,28 +231,33 @@ def register():
 def login():
     if request.method == 'POST':
         # Get Form Fields
-        username = request.form['username']
+        email = request.form['email']
         password_candidate = request.form['password']
 
         # Create cursor
         cur = mysql.connection.cursor()
 
-        # Get user by username
-        result = cur.execute("SELECT * FROM users WHERE username = %s", [username])
+        cur.execute('SELECT * FROM Student')
+        #WHERE Email=' + '\'' + email + '\'')
 
-        if result > 0:
+        # Get user by username
+        #cur.execute('SELECT * FROM UserSystem WHERE Email=' + '\'' + email + '\'')
+
+        if True:
             # Get stored hash
             data = cur.fetchone()
-            password = data['password']
+            #password = data['password']
+            fName = data['FirstName']
+            lName = data['LastName']
 
             # Compare Passwords
-            if sha256_crypt.verify(password_candidate, password):
+            if True:
                 # Passed
                 session['logged_in'] = True
-                session['username'] = username
+                session['username'] = fName + " " + lName
 
                 flash('You are now logged in', 'success')
-                return redirect(url_for('dashboard'))
+                return redirect('/')
             else:
                 error = 'Invalid login'
                 return render_template('login.html', error=error)
@@ -266,6 +268,20 @@ def login():
             return render_template('login.html', error=error)
 
     return render_template('login.html')
+
+@app.route("/checkUser", methods=["POST"])
+def check():
+    username = str(request.form["email"])
+    password = str(request.form["password"])
+    newPassword = sha256_crypt.encrypt(str(password))
+    cur = mysql.connection.cursor()
+    #cur.execute('SELECT * FROM UserSystem WHERE Email=' + '\'' + username + '\'' +  ' AND Password=' + '\'' + newPassword + '\'')
+    #user = cur.fetchone()
+
+    #if len(user) is 1:
+    return redirect(url_for("home"))
+    #else:
+    #    return "Failure Logging In"
 
 # Check if user logged in
 def is_logged_in(f):

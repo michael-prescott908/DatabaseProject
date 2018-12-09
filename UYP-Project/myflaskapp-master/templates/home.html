@@ -3,10 +3,14 @@
 {% block body %}
   <div class="jumbotron text-center">
     <h1>University for Young People (UYP)</h1>
-    <p class="lead">Welcome to the University for Young People Application!<br/>
-    Click below to get started!</p>
     {% if session.logged_in == NULL %}
+        <p class="lead">Welcome to the University for Young People Application!<br/></p>
+        <p class="lead">Click below to get started!<p>
       <a href="/register" class="btn btn-primary btn-lg">Register</a>
+    {% else %}
+        <p class="lead">Welcome back {{ session['username'] }}!<p>
+            <a href="/register" class="btn btn-primary btn-lg">My Classes</a><br/><br/>
+        <a href="/register" class="btn btn-primary btn-lg">Look Up Classes</a>
     {% endif %}
   </div>
 {% endblock %}
