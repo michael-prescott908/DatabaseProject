@@ -9,6 +9,8 @@ from functools import wraps
 import collections
 import uuid
 from flask_material import Material
+import random
+import string
 
 
 app = Flask(__name__)
@@ -21,6 +23,21 @@ app.config['MYSQL_DB'] =  'uypdbfinal'
 #app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # init MYSQL
 mysql = MySQL(app)
+
+
+def giveAccount(id):
+    new_pass = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(8))
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT FirstName, LastName FROM Student WHERE StudentID=%s", id)
+    res = cur.fetchone()
+
+    new_use = (res[1] + res[0] + ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(5)))
+
+    cur = mysql.connection.cursor()
+    cur.execute("INSERT INTO UserSystem (StudentID, Username, Password) VALUES (%s, %s, %s)", (id, new_use, str(sha256_crypt.hash(new_pass))))
+    mysql.connection.commit()
+    cur.close()
+
 
 # Index
 @app.route('/', methods=['GET', 'POST'])
@@ -189,6 +206,8 @@ def adstudent(id):
                 cur.execute("UPDATE Student SET AcceptedState=\'True\' WHERE StudentID=%s", [id])
                 mysql.connection.commit()
                 cur.close()
+                giveAccount([id])
+
             else:
                 cur = mysql.connection.cursor()
                 cur.execute("DELETE FROM Student WHERE StudentID=%s", [id])
