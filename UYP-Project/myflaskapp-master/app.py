@@ -136,7 +136,7 @@ def adminad():
     else:
         cur = mysql.connection.cursor()
         # Get articles
-        result = cur.execute("SELECT * FROM student WHERE AcceptedState=False AND NeedsInfo=False")
+        result = cur.execute("SELECT * FROM student WHERE AcceptedState=\'False\' AND NeedsInfo=\'False\'")
         students = cur.fetchall()
 
         if result > 0:
@@ -144,6 +144,59 @@ def adminad():
         else:
             msg = 'No Articles Found'
             return render_template('adstudents.html', msg=msg)
+
+@app.route('/adstudent/<string:id>/', methods=['POST', 'GET'])
+def adstudent(id):
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+
+    elif session['username'] != 'Admin':
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+
+    else:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM student WHERE StudentID=%s", [id])
+        student = cur.fetchone()
+        cur.close()
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM SchoolingInfo WHERE StudentID=%s", [id])
+        school = cur.fetchone()
+        cur.close()
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM UYPReview WHERE StudentID=%s", [id])
+        uyp = cur.fetchone()
+        cur.close()
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM HealthInfo WHERE StudentID=%s", [id])
+        health = cur.fetchone()
+        cur.close()
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM DisabilityInfo WHERE StudentID=%s", [id])
+        disability = cur.fetchone()
+        cur.close()
+
+        if request.method == 'POST':
+            print("I am now in the accept thing--------------------------")
+            if 'Accept' in request.form:
+                print("I am now in the real accept thing--------------------------")
+                cur = mysql.connection.cursor()
+                cur.execute("UPDATE Student SET AcceptedState=\'True\' WHERE StudentID=%s", [id])
+                mysql.connection.commit()
+                cur.close()
+            else:
+                cur = mysql.connection.cursor()
+                cur.execute("DELETE FROM Student WHERE StudentID=%s", [id])
+                mysql.connection.commit()
+                cur.close()
+            return redirect('/adminad')
+
+    return render_template('adpage.html', student=student, school=school, uyp=uyp, health=health, disability=disability)
 
 
 SESSION_TYPES = (('--Select--', '--Select--'), ('Week 1', 'Week 1'), ('Week 2','Week 2'), ('Week 3', 'Week 3'))
