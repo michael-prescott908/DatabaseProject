@@ -447,31 +447,6 @@ def adminupdateclass():
             return redirect(url_for('dashboard'))
 
         return render_template('admin_update_class.html', form=form)
-		
-@app.route('/admindeleteclass', methods=['GET', 'POST'])
-def admindeleteclass(id):
-    if 'username' not in session:
-        flash("You are not authorized", 'danger')
-        return render_template('home.html')
-
-    elif session['username'] != 'Admin':
-        flash("You are not authorized", 'danger')
-        return render_template('home.html')
-
-    else:
-		courseid = id
-        
-        cur = mysql.connection.cursor()
-        
-        result = cur.execute("DELETE FROM Courses WHERE CourseID = %s", (courseid))
-        
-        mysql.connection.commit()
-        
-        cur.close()
-        
-        return redirect(url_for('dashboard'))
-        
-    return render_template('admindeleteclass.html')
 
 @app.route('/admineditstudentsform/<string:id>', methods=['POST', 'GET'])
 def admineditstudent(id):
