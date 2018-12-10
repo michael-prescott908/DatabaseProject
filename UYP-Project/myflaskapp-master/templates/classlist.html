@@ -1,0 +1,10 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <h1>Students Pending Information</h1>
+  <ul class="list-group">
+    {% for class in classes %}
+      <li class="list-group-item"><a href="classpage/{{class[0]}}">{{class[0]}}: {{class[1]}} {{class[2]}}</a></li>
+    {% endfor %}
+  </ul>
+{% endblock %}
