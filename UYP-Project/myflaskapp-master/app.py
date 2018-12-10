@@ -13,9 +13,9 @@ import uuid
 app = Flask(__name__)
 
 # Config MySQL
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root'
+app.config['MYSQL_HOST'] = 'db.summersend.serverswc.com'
+app.config['MYSQL_USER'] = 'michael'
+app.config['MYSQL_PASSWORD'] = 'databaseproject'
 app.config['MYSQL_DB'] =  'uypdbfinal'
 #app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # init MYSQL
@@ -174,6 +174,59 @@ def myprofile():
         res = cur.fetchone()
 
         return render_template('myprofile.html', user=res)
+        
+        cur.close()
+
+# List Classes
+@app.route('/classes', methods=['GET'])
+def listClasses():
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+    else:
+        # Create Cursor
+        cur = mysql.connection.cursor()
+    
+        # Execute
+        result = cur.execute("SELECT * FROM Courses")
+    
+        # Commit to DB
+        res = cur.fetchall()
+    
+        #Close Connection
+        cur.close()        
+        
+        if result > 0:
+            return render_template('classes.html', classes=res)
+        else:
+            msg = 'No Articles Found'
+            return render_template('classes.html', msg=msg)
+            
+# List My Classes
+@app.route('/myclasses', methods=['GET'])
+def listMyClasses(id):
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+    else:
+        #Create Cursor
+        cur = mysql.connection.cursor()
+        
+        # Execute
+        result = cur.execute("SELECT * FROM Courses,Takes WHERE Takes.StudentID = %s AND Takes.CourseID = Courses.CourseID")
+        
+        #Commit to DB
+        res = cur.fetchall()
+        
+        #Close Connection
+        cur.close()
+        
+        if result > 0:
+            return render_template('myclasses.html', classes=res)
+        else:
+            msg = 'No Classes Found'
+            return render_template('myclasses.html', msg=msg)
+        
 
 #Single Article
 @app.route('/article/<string:id>/')
