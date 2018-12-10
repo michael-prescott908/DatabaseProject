@@ -14,14 +14,13 @@ from flask_material import Material
 app = Flask(__name__)
 
 # Config MySQL
-app.config['MYSQL_HOST'] = 'db.summersend.serverswc.com'
-app.config['MYSQL_USER'] = 'michael'
-app.config['MYSQL_PASSWORD'] = 'databaseproject'
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] =  'uypdbfinal'
 #app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # init MYSQL
 mysql = MySQL(app)
-Material(app)
 
 # Index
 @app.route('/', methods=['GET', 'POST'])
@@ -142,20 +141,115 @@ def studentinfo(id):
 
         return render_template('studentpage.html', student=student)
 
-@app.route('/updateprofile')
+@app.route('/updateprofile', methods=['POST', 'GET'])
 def updateprofile():
     if 'username' not in session:
         flash("You are not authorized", 'danger')
         return render_template('home.html')
     else:
-        cur = mysql.connection.cursor()
+        form = RegisterForm(request.form)
+        if request.method == 'POST': #and form.validate():
+            print("I am here in update profile")
+            StudentID = form.StudentID
+            FirstName = form.FirstName.data
+            LastName = form.LastName.data
+            MiddleInit = form.MiddleInit.data
+            Suffix = form.Suffix.data
+            Nickname = form.PreferredName.data
+            AddressLine1 = form.AddressLine1.data
+            AddressLine2 = form.AddressLine2.data
+            City = form.City.data
+            State = form.State.data
+            Zip = form.Zip.data
+            Birthdate = form.Birthdate.data
+            Gender = form.Gender.data
+            Ethnicity = form.Ethnicity.data
+            PhoneNumber = form.PhoneNumber.data
+            Email = form.Email.data
+            GraduationYear = form.Graduationyear.data
+            GT = form.GiftedTalented.data
+            Siblingnames = form.Siblingnames.data
+            Gaurdian1Name = form.Gaurdian1Name.data
+            Gaurdian1AddressLine1 = form.Gaurdian1AddressLine1.data
+            Gaurdian1AddressLine2 = form.Gaurdian1AddressLine2.data
+            Gaurdian1City = form.Gaurdian1City.data
+            Gaurdian1State = form.Gaurdian1State.data
+            Gaurdian1Zip = form.Gaurdian1Zip.data
+            Gaurdian1HomePhone = form.Gaurdian1homephone.data
+            Gaurdian1WorkPhone = form.Gaurdian1workphone.data
+            Gaurdian1CellPhone = form.Gaurdian1cellphone.data
+            Gaurdian2Name = form.Gaurdian2Name.data
+            Gaurdian2AddressLine1 = form.Gaurdian2AddressLine1.data
+            Gaurdian2AddressLine2 = form.Gaurdian2AddressLine2.data
+            Gaurdian2City = form.Gaurdian2City.data
+            Gaurdian2State = form.Gaurdian2State.data
+            Gaurdian2Zip = form.Gaurdian2Zip.data
+            Gaurdian2HomePhone = form.Gaurdian2homephone.data
+            Gaurdian2WorkPhone = form.Gaurdian2workphone.data
+            Gaurdian2CellPhone = form.Gaurdian2cellphone.data
+            SchoolType = form.Schooltype.data
+            SchoolName = form.Schoolname.data
+            SchoolDistrict = form.Schooldistrict.data
+            CurrentGrade = form.Schoolgrade.data
 
-        # Get article
-        result = cur.execute("SELECT * FROM student WHERE StudentID=%s", [session['number']])
+            print(FirstName + " " + LastName + " " + MiddleInit)
 
-        student = cur.fetchone()
+            cur1 = mysql.connection.cursor()
+            cur1.execute("SELECT * FROM Student WHERE StudentID=%s", [session['number']])
+            ires1 = cur1.fetchone()
+            cur1.close()
 
-        return render_template('updateprofile.html', student=student)
+            cur2 = mysql.connection.cursor()
+            cur2.execute("SELECT * FROM ParentInfo WHERE StudentID=%s", [session['number']])
+            ires2 = cur2.fetchall()
+            cur2.close()
+
+            cur3 = mysql.connection.cursor()
+            cur3.execute("SELECT * FROM SchoolingInfo WHERE StudentID=%s", [session['number']])
+            ires3 = cur3.fetchone()
+            cur3.close()
+                #spits out any and all errors**
+                # Create cursor
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("UPDATE Student SET FirstName=%s, LastName=%s, MiddleInitial=%s, Suffix=%s, Nickname=%s, Address_Line1=%s, Address_Line2=%s, City=%s, State=%s, Zip=%s, Birthdate=%s, Gender=%s, Ethnicity=%s, PhoneNumber=%s, Email=%s, GraduationYear=%s, GT=%s, EnglishLearner=%s, NationalClearingHouse=%s, AcceptedState=%s, NeedsInfo=%s WHERE StudentID=%s",
+                        (FirstName, LastName, MiddleInit, Suffix, Nickname, AddressLine1, AddressLine2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GraduationYear, GT, ires1[18], ires1[19], ires1[20], ires1[21], ires1[0]))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
+
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("UPDATE ParentInfo SET Name=%s, Address_Line1=%s, Address_Line2=%s, City=%s, State=%s, Zip=%s, HomePhone=%s, WorkPhone=%s, CellPhone=%s WHERE StudentID=%s",
+                        (Gaurdian1Name, Gaurdian1AddressLine1, Gaurdian1AddressLine2, Gaurdian1City, Gaurdian1State, Gaurdian1Zip, Gaurdian1HomePhone, Gaurdian1WorkPhone, Gaurdian1CellPhone, ires2[0][0]))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
+
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("UPDATE ParentInfo SET Name=%s, Address_Line1=%s, Address_Line2=%s, City=%s, State=%s, Zip=%s, HomePhone=%s, WorkPhone=%s, CellPhone=%s WHERE StudentID=%s",
+                        (Gaurdian2Name, Gaurdian2AddressLine1, Gaurdian2AddressLine2, Gaurdian2City, Gaurdian2State, Gaurdian2Zip, Gaurdian2HomePhone, Gaurdian2WorkPhone, Gaurdian2CellPhone, ires2[0][0]))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
+
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("UPDATE SchoolingInfo SET SchoolType=%s, SchoolName=%s, SchoolDistrict=%s, CurrentGrade=%s WHERE StudentID=%s",
+                                            (SchoolType, SchoolName, SchoolDistrict, CurrentGrade, ires3[0]))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
+
+            flash('You have successfuly updated your profile!', 'success')
+
+            return redirect('/')
+        return render_template('updateprofile.html', form=form)
 
 
 @app.route('/myprofile')
@@ -168,12 +262,13 @@ def myprofile():
         cur = mysql.connection.cursor()
 
         # Get articles
+        print(session['number'])
         result = cur.execute("SELECT * FROM Student WHERE StudentID=%s", [session['number']])
 
         res = cur.fetchone()
 
         return render_template('myprofile.html', user=res)
-        
+
         cur.close()
 
 # List Classes
@@ -185,22 +280,22 @@ def listClasses():
     else:
         # Create Cursor
         cur = mysql.connection.cursor()
-    
+
         # Execute
         result = cur.execute("SELECT * FROM Courses")
-    
+
         # Commit to DB
         res = cur.fetchall()
-    
+
         #Close Connection
-        cur.close()        
-        
+        cur.close()
+
         if result > 0:
             return render_template('classes.html', classes=res)
         else:
             msg = 'No Articles Found'
             return render_template('classes.html', msg=msg)
-            
+
 # List My Classes
 @app.route('/myclasses', methods=['GET'])
 def listMyClasses(id):
@@ -210,22 +305,22 @@ def listMyClasses(id):
     else:
         #Create Cursor
         cur = mysql.connection.cursor()
-        
+
         # Execute
         result = cur.execute("SELECT * FROM Courses,Takes WHERE Takes.StudentID = %s AND Takes.CourseID = Courses.CourseID")
-        
+
         #Commit to DB
         res = cur.fetchall()
-        
+
         #Close Connection
         cur.close()
-        
+
         if result > 0:
             return render_template('myclasses.html', classes=res)
         else:
             msg = 'No Classes Found'
             return render_template('myclasses.html', msg=msg)
-        
+
 
 #Single Article
 @app.route('/article/<string:id>/')
@@ -376,7 +471,7 @@ def register():
     form = RegisterForm(request.form)
     print("I am here")
     if request.method == 'POST': #and form.validate():
-        StudentID = form.StudentID
+        StudentID = uuid.uuid4()
         FirstName = form.FirstName.data
         LastName = form.LastName.data
         MiddleInit = form.MiddleInit.data
@@ -420,12 +515,13 @@ def register():
 
 
         print(FirstName + " " + LastName + " " + MiddleInit)
+        print("My new ID is" + str(StudentID))
             #spits out any and all errors**
             # Create cursor
         cur = mysql.connection.cursor()
             # Execute query
-        cur.execute("INSERT INTO Student(StudentID, FirstName, LastName, MiddleInitial, Suffix, Nickname, Address_Line1, Address_Line2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GraduationYear, GT, EnglishLearner, NationalClearingHouse, AcceptedState) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                        (StudentID, FirstName, LastName, MiddleInit, Suffix, Nickname, Address_Line1, Address_Line2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GraduationYear, GT, '', '', 'False'))
+        cur.execute("INSERT INTO Student(StudentID, FirstName, LastName, MiddleInitial, Suffix, Nickname, Address_Line1, Address_Line2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GraduationYear, GT, EnglishLearner, NationalClearingHouse, AcceptedState, NeedsInfo) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                        (StudentID, FirstName, LastName, MiddleInit, Suffix, Nickname, Address_Line1, Address_Line2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GraduationYear, GT, '', '', 'False', 'True'))
             # Commit to DB
         mysql.connection.commit()
             # Close connection
