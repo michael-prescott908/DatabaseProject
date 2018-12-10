@@ -32,29 +32,31 @@ def index():
 def about():
     return render_template('about.html')
 
-@app.route('/v', methods=['POST'])
+@app.route('/v', methods=['POST', 'GET'])
 def adminlogin():
     if request.method == 'POST':
         # Get Form Fields
         username = request.form['username']
         password_candidate = request.form['password']
-
+        print(username)
+        print(password_candidate)
         # Create cursor
         cur = mysql.connection.cursor()
 
-        cur.execute('SELECT * FROM Admin WHERE Username=%s', [username])
+        result = cur.execute('SELECT * FROM Admin WHERE Username=%s', [username])
         #WHERE Email=' + '\'' + email + '\'')
 
         # Get user by username
         #cur.execute('SELECT * FROM UserSystem WHERE Email=' + '\'' + email + '\'')
 
-        if True:
+        if result > 0:
             # Get stored hash
             data = cur.fetchone()
             password = data[1]
+            print(password + " " + password_candidate)
 
             # Compare Passwords
-            if True:
+            if sha256_crypt.verify(password_candidate, password):
                 # Passed
                 session['logged_in'] = True
                 session['username'] = "Admin"
@@ -68,7 +70,7 @@ def adminlogin():
             cur.close()
         else:
             error = 'Username not found'
-            return render_template('login.html', error=error)
+            return render_template('adminlogin.html', error=error)
     return render_template('login.html')
 
 @app.route('/vadmin')
@@ -361,7 +363,7 @@ SCHOOL_TYPES = (('--Select--', '--Select--'), ('Public', 'Public'), ('Private', 
 CLASS_TYPES = (('--Select--', '--Select--'), ('4th', '4th'), ('5th', '5th'), ('6th', '6th'), ('7th', '7th'), ('8th', '8th'),
                 ('9th', '9th'), ('10th', '10th'), ('11th', '11th'), ('12th', '12th'))
 
-SUFFIX_TYPES = (('--Select--', '--Select--'), ('II','II'), ('III', 'III'), ('IV', 'IV'), ('Jr', 'Jr'), ('Sr', 'Sr'))
+SUFFIX_TYPES = (('--Select--', '--Select--'), ('', ''), ('II','II'), ('III', 'III'), ('IV', 'IV'), ('Jr', 'Jr'), ('Sr', 'Sr'))
 
 #def list_to_ordered_pairs(input_list):
 #    ordered_pairs = collections.OrderedDict()
