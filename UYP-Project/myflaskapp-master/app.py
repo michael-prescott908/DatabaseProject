@@ -14,9 +14,9 @@ from flask_material import Material
 app = Flask(__name__)
 
 # Config MySQL
-app.config['MYSQL_HOST'] = 'db.summersend.serverswc.com'
-app.config['MYSQL_USER'] = 'michael'
-app.config['MYSQL_PASSWORD'] = 'databaseproject'
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] =  'uypdbfinal'
 #app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # init MYSQL
@@ -121,12 +121,12 @@ def adminstudents():
         else:
             msg = 'No Articles Found'
             return render_template('adminstudents.html', msg=msg)
-        
-    
+
+
 SESSION_TYPES = (('--Select--', '--Select--'), ('Week 1', 'Week 1'), ('Week 2','Week 2'), ('Week 3', 'Week 3'))
 TIME_SLOTS = (('--Select--', '--Select--'), ('9:45 – 11:15am', '9:45 – 11:15am'), ('1:15-2:45 pm', '1:15-2:45 pm'))
 GRADE_RANGES = (('--Select--', '--Select--'), ('4-5', '4-5'), ('6-8', '6-8'), ('9-12', '9-12'))
-        
+
 # Class Form Class
 class ClassForm(Form):
     courseid = StringField('Course ID', [validators.Regexp('^[A-Za-z][A-Za-z][0-9][0-9]$'), validators.Length(min=4, max=4)])
@@ -137,7 +137,7 @@ class ClassForm(Form):
     graderange = SelectField(label='Grade Range', choices=GRADE_RANGES, validators=[validators.Regexp('^(?!--Select--$)')])
     maxcapacity = StringField('Maximum Capacity', [validators.Regexp('^[0-9]+$'), validators.Length(min=1, max=3)])
     roomnumber = StringField('Room #', [validators.Regexp('^[A-Za-z0-9]+$'), validators.Length(min=1, max=5)])
-    
+
 
 # Add Class
 @app.route('/adminaddclass', methods=['GET', 'POST'])
@@ -179,11 +179,11 @@ def adminaddclass():
             return redirect(url_for('dashboard'))
 
         return render_template('admin_add_class.html', form=form)
-		
+
 # Update Class
 @app.route('/adminupdateclass', methods=['GET', 'POST'])
 def adminupdateclass():
-	if 'username' not in session:
+    if 'username' not in session:
         flash("You are not authorized", 'danger')
         return render_template('home.html')
 
@@ -192,7 +192,7 @@ def adminupdateclass():
         return render_template('home.html')
 
     else:
-		form = ArticleForm(request.form)
+        form = ArticleForm(request.form)
         if request.method == 'POST' and form.validate():
             courseid = form.courseid.data
             course_name = form.course_name.data
