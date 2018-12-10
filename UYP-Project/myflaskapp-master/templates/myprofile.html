@@ -1,48 +1,80 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-  <h1>{{user[2]}}, {{user[1]}} {{user[3]}} {{user[4]}}</h1>
-  StudentID: {{user[0]}}
+ <!-- <h3>{{user[2]}}, {{user[1]}} {{user[3]}} {{user[4]}}</h3>-->
+<table class="table table-hover">
+  <thead>
+  <th>StudentID:</th><th>{{user[0]}}</th>
+  </thead>
+  <thead>
+  <th>First Name: </th><th>{{user[1]}}</th>
   <br/>
-  First Name: {{user[1]}}
+  </thead>
+  <thead>
+  <th>Last Name: </th><th>{{user[2]}}</th>
   <br/>
-  Last Name: {{user[2]}}
+  </thead>
+  <thead>
+   <th>Middle Inital: </th><th>{{user[3]}}</th>
   <br/>
-   Middle Inital: {{user[3]}}
+  </thead>
+  <thead>
+   <th>Suffix:</th><th>{{user[4]}}</th>
   <br/>
-   Suffix: {{user[4]}}
+  </thead>
+  <thead>
+  <th>Preferred Name:</th><th>{{user[5]}}</th>
   <br/>
-  Preferred Name: {{user[5]}}
+  </thead>
+  <thead>
+  <th>Address Line 1:</th><th>{{user[6]}}</th>
   <br/>
-  Address Line 1: {{user[6]}}
+  </thead>
+  <thead>
+  <th>Address Line 2:</th><th>{{user[7]}}</th>
   <br/>
-  Address Line 2: {{user[7]}}
+  </thead>
+  <thead>
+  <th>City:</th><th>{{user[8]}}</th>
   <br/>
-  City: {{user[8]}}
+  </thead>
+  <thead>
+  <th>State:</th><th>{{user[9]}}</th>
   <br/>
-  State: {{user[9]}}
+  </thead>
+  <thead>
+  <th>Zip:</th><th>{{user[10]}}</th>
   <br/>
-  Zip: {{user[10]}}
+  </thead>
+  <thead>
+  <th>Birthdate:</th><th>{{user[11]}}</th>
   <br/>
-  Birthdate: {{user[11]}}
+  </thead>
+  <thead>
+  <th>Gender:</th><th>{{user[12]}}</th>
   <br/>
-  Gender: {{user[12]}}
+  </thead>
+  <thead>
+  <th>Ethnicity:</th><th>{{user[13]}}</th>
   <br/>
-  Ethnicity: {{user[13]}}
+  </thead>
+  <thead>
+  <th>Phone:</th><th>{{user[12]}}</th>
   <br/>
-  Phone: {{user[12]}}
+  </thead>
+  <thead>
+  <th>Email</th><th>{{user[13]}}</th>
   <br/>
-  Email: {{user[13]}}
+  </thead>
+  <thead>
+  <th>Graduation Year</th><th>{{user[14]}}</th>
   <br/>
-  Graduation Year: {{user[14]}}
+  </thead>
+  <thead>
+  <th>Gifted and Talented?:</th><th>{{user[15]}}</th>
   <br/>
-  Gifted and Talented?: {{user[15]}}
+  </thead>
   <br/>
+</table>
 
-
-
-  <hr>
-  <div>
-
-  </div>
 {% endblock %}
