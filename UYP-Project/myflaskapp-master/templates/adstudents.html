@@ -1,0 +1,10 @@
+{% extends 'adminlayout.html' %}
+
+{% block body %}
+  <h1>Students Pending Acceptence</h1>
+  <ul class="list-group">
+    {% for student in students %}
+      <li class="list-group-item"><a href="adstudent/{{student[0]}}">{{student[0]}}: {{student[1]}} {{student[2]}}</a></li>
+    {% endfor %}
+  </ul>
+{% endblock %}
