@@ -11,6 +11,8 @@
       <br/>
       {% if session['username'] == 'Admin'%}
           <a href="/admindeleteclass/{{Class[0]}}" class="btn btn-primary btn-lg">Delete Class</a>
+      {% else %}
+          <a href="/registerclass/{{Class[0]}}" class="btn btn-primary btn-lg">Register For Class</a>
       {% endif %}
       <br/>
       <table class="table table-dark" margin="top">

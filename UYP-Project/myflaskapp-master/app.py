@@ -12,6 +12,7 @@ import uuid
 from flask_material import Material
 import random
 import string
+import re
 
 
 app = Flask(__name__)
@@ -194,6 +195,53 @@ def adminstudents():
             msg = 'No students found'
             return render_template('adminstudents.html', msg=msg)
 
+@app.route('/registerclass/<string:id>')
+def registerclass(id):
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+    else:
+        # Create Cursor
+        cur = mysql.connection.cursor()
+        cur2 = mysql.connection.cursor()
+
+        timeslot = cur2.execute("SELECT TimeSlot FROM Courses WHERE CourseID = %s", [id])
+
+        timeslot = cur2.fetchone()
+        # Execute
+        res = cur.execute("SELECT TimeSlot FROM Takes, Courses WHERE StudentID=%s AND Courses.CourseID = Takes.CourseID AND TimeSlot = %s", [session['number'], timeslot])
+        # Commit to DB
+        results = cur.fetchone()
+
+        if res > 0:
+            flash("CONFLICT: Already registered for a class in this time slot.", 'danger')
+            return render_template('home.html')
+        else:
+            cur3 = mysql.connection.cursor()
+            cur4 = mysql.connection.cursor()
+
+            mygrade = cur3.execute("SELECT CurrentGrade FROM schoolinginfo WHERE StudentID = %s", [session['number']])
+            classGradeRange = cur4.execute("SELECT GradeRange FROM Courses WHERE CourseID = %s", [id])
+
+            mygrade = cur3.fetchone()
+            classGradeRange = cur4.fetchone()
+
+            #print("This is the value returned from the tupe: %s", [mygrade[0]])
+            lower,upper = classGradeRange[0].split("-")
+
+            print("Lower bound: %s", [lower])
+            print("Upper bound: %s", [upper])
+
+            thegrade = re.sub('[^0-9]','', mygrade[0])
+
+            print("The Grade: %s", [thegrade])
+
+            if thegrade <= upper and thegrade >= lower:
+                flash("YOU CAN FUCKING REGISTER", 'danger')
+                return render_template('home.html')
+            else:
+                flash("CONFLICT: This class is not available for your grade range", 'danger')
+                return render_template('home.html')
 
 @app.route('/adminad')
 def adminad():
