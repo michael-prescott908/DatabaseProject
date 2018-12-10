@@ -138,7 +138,7 @@ class ClassForm(Form):
     roomnumber = StringField('Room #', [validators.Regexp('^[A-Za-z0-9]+$'), validators.Length(min=1, max=5)])
     
 
-# Add Article
+# Add Class
 @app.route('/adminaddclass', methods=['GET', 'POST'])
 def adminaddclass():
     if 'username' not in session:
@@ -165,7 +165,7 @@ def adminaddclass():
             cur = mysql.connection.cursor()
 
             # Execute
-            cur.execute("INSERT INTO Courses(CourseId, Course_Name, Department, Session, TimeSlot, GradeRange, MaxCapacity, CurCapacity, TeacherID, RoomNo, HasTeacher) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",(courseid, course_name, department, session, timeslot, graderange, maxcapacity, maxcapacity, '', roomnumber, 'False'))
+            cur.execute("INSERT INTO Courses(CourseId, Course_Name, Department, Session, TimeSlot, GradeRange, MaxCapacity, CurCapacity, TeacherID, RoomNo, HasTeacher, IsActive) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",(courseid, course_name, department, session, timeslot, graderange, maxcapacity, maxcapacity, '', roomnumber, 'False', 'False'))
 
             # Commit to DB
             mysql.connection.commit()
@@ -178,6 +178,47 @@ def adminaddclass():
             return redirect(url_for('dashboard'))
 
         return render_template('admin_add_class.html', form=form)
+		
+# Update Class
+@app.route('/adminupdateclass', methods=['GET', 'POST'])
+def adminupdateclass():
+	if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+
+    elif session['username'] != 'Admin':
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+
+    else:
+		form = ArticleForm(request.form)
+        if request.method == 'POST' and form.validate():
+            courseid = form.courseid.data
+            course_name = form.course_name.data
+            department = form.department.data
+            session = form.session.data
+            timeslot = form.timeslot.data
+            graderange = form.graderange.data
+            maxcapacity = form.maxcapacity.data
+            roomnumber = form.roomnumber.data
+
+            # Create Cursor
+            cur = mysql.connection.cursor()
+
+            # Execute
+            cur.execute("UPDATE Courses SET Course_Name=%s, Department=%s, Session=%s, TimeSlot=%s, GradeRange=%s, MaxCapacity=%s, CurCapacity=%s, RoomNo=%s WHERE CourseID=%s",(course_name, department, session, timeslot, graderange, maxcapacity, maxcapacity, roomnumber, courseid))
+
+            # Commit to DB
+            mysql.connection.commit()
+
+            #Close connection
+            cur.close()
+
+            flash('Class Updated', 'success')
+
+            return redirect(url_for('dashboard'))
+
+        return render_template('admin_update_class.html', form=form)
 
 #Single student
 @app.route('/studentpage/<string:id>/')
@@ -341,7 +382,7 @@ def listClasses():
         cur = mysql.connection.cursor()
 
         # Execute
-        result = cur.execute("SELECT * FROM Courses")
+        result = cur.execute("SELECT * FROM Courses WHERE IsActive = 'True'")
 
         # Commit to DB
         res = cur.fetchall()
@@ -366,7 +407,7 @@ def listMyClasses(id):
         cur = mysql.connection.cursor()
 
         # Execute
-        result = cur.execute("SELECT * FROM Courses,Takes WHERE Takes.StudentID = %s AND Takes.CourseID = Courses.CourseID", id)
+        result = cur.execute("SELECT * FROM Courses,Takes WHERE Takes.StudentID = %s AND Takes.CourseID = Courses.CourseID AND Courses.IsActive = 'True'", id)
 
         #Commit to DB
         res = cur.fetchall()
