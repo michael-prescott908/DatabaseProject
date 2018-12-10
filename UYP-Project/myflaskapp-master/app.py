@@ -53,7 +53,8 @@ def adminlogin():
             # Get stored hash
             data = cur.fetchone()
             password = data[1]
-            print(password + " " + password_candidate)
+            print(sha256_crypt.hash(password_candidate))
+            print(password)
 
             # Compare Passwords
             if sha256_crypt.verify(password_candidate, password):
@@ -134,6 +135,7 @@ def studentinfo(id):
         return render_template('home.html')
 
     else:
+        form = UYPReviewForm(request.form)
         cur = mysql.connection.cursor()
 
         # Get article
@@ -141,7 +143,7 @@ def studentinfo(id):
 
         student = cur.fetchone()
 
-        return render_template('studentpage.html', student=student)
+        return render_template('studentpage.html', student=student, form=form)
 
 @app.route('/updateprofile', methods=['POST', 'GET'])
 def updateprofile():
@@ -372,6 +374,25 @@ SUFFIX_TYPES = (('--Select--', '--Select--'), ('', ''), ('II','II'), ('III', 'II
 #    return ordered_pairs
 
 #state_pairs = list_to_ordered_pairs(STATE_ABBREV)
+class UYPReviewForm(Form):
+    YearAccepted = StringField('Year Accepted', [validators.Regexp('^[1234567890]+$'),
+                                                validators.Length(min=4, max=4)])
+    GradeAccepted = SelectField(label='Grade Accepted ', choices=CLASS_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
+    Status = SelectField(label='Interest Status ', choices=BOOL_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    FundingStatus = SelectField(label='Is the student grant funded? ', choices=BOOL_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    GrantName = StringField('If funded, what is the fund name?', [validators.Regexp('^[a-zA-Z ]+$'),
+                                                validators.Length(min=1, max=50)])
+    Mentors = StringField('Names of mentors for the student', [validators.Regexp('^[a-zA-Z ,]+$'),
+                                                validators.Length(min=1, max=50)])
+    Siblings = StringField('Names of siblings in UYP', [validators.Regexp('^[a-zA-Z ,]+$'),
+                                                validators.Length(min=1, max=50)])
+    Disability = StringField('Disability information (255 Characters or less)', [validators.Length(min=1, max=255)])
+    Health = StringField('Health information (255 Characters or less)', [validators.Length(min=1, max=255)])
+    EnglishLearner = SelectField(label='Is the student an English learner?', choices=BOOL_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    GT = SelectField(label='Is the student part of Gifted and Talented?', choices=BOOL_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    NationalClearingHouse = StringField('National Clearing House Info (255 Characters or less)', [validators.Length(min=1, max=255)])
+    AdditionalInfo = StringField('Any additional Info')
+
 
 # Register Form
 class RegisterForm(Form):
