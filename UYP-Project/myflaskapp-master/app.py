@@ -17,9 +17,9 @@ import string
 app = Flask(__name__)
 
 # Config MySQL
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root'
+app.config['MYSQL_HOST'] = 'db.summersend.serverswc.com'
+app.config['MYSQL_USER'] = 'michael'
+app.config['MYSQL_PASSWORD'] = 'databaseproject'
 app.config['MYSQL_DB'] =  'uypdbfinal'
 app.config.update(
     DEBUG=True,
@@ -216,7 +216,7 @@ def adminad():
         else:
             msg = 'No students found'
             return render_template('adstudents.html', msg=msg)
-			
+            
 @app.route('/adminlistteachers')
 def adminlistteachers():
     if 'username' not in session:
@@ -238,14 +238,14 @@ def adminlistteachers():
         else:
             msg = 'No teachers found'
             return render_template('adminlistteachers.html', msg=msg)
-			
+            
 # Teacher Form Class
 class TeacherForm(Form):
     first_name = StringField('First Name', [validators.Regexp('^[A-Za-z0-9]+$'), validators.Length(min=3, max=200)])
     last_name = StringField('Last Name', [validators.Regexp('^[A-Za-z0-9]+$'), validators.Length(min=3, max=200)])
     middle_initial = StringField('Middle Initial', [validators.Regexp('^[A-Za-z0-9]$'), validators.Length(min=1, max=1)])
-	
-@app.route('/adminaddteacher')
+    
+@app.route('/addteacher')
 def adminaddteacher():
     if 'username' not in session:
         flash("You are not authorized", 'danger')
@@ -256,46 +256,46 @@ def adminaddteacher():
         return render_template('home.html')
 
     else:
-		teacherid = uuid.uuid4()
-		first_name = form.first_name.data
-		last_name = form.last_name.data
-		middle_initial = form.middle_initial.data
-		
+        teacherid = uuid.uuid4()
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        middle_initial = form.middle_initial.data
+        
         cur = mysql.connection.cursor()
         # Get articles
         result = cur.execute("INSERT INTO Teacher (TeacherID, FirstName, LastName, MiddleInitial) VALUES (%s, %s, %s, %s)", (teacherid, first_name, last_name, middle_initial))
         mysql.connection.commit()
-		
-		cur.close()
+        
+        cur.close()
 
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('vadmin'))
 
-    return render_template('admin_add_teacher.html', form=form)
-	
+    return render_template('addteacher.html', form=form)
+    
 @app.route('/admindeleteteacher')
 def admindeleteteacher(id):
-	if 'username' not in session:
-		flash("You are not authorized", 'danger')
-		return render_template('home.html')
-		
-	elif session['username'] != 'Admin':
-		flash("You are not authorized", 'danger')
-		return render_template('home.html')
-	
-	else:
-		teacherid = id
-		
-		cur = mysql.connection.cursor()
-		
-		result = cur.execute("DELETE FROM Teacher WHERE TeacherID = %s", (teacherid))
-		
-		mysql.connection.commit()
-		
-		cur.close()
-		
-		return redirect(url_for('dashboard'))
-		
-	return render_template('admindeleteteacher.html')
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+        
+    elif session['username'] != 'Admin':
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+    
+    else:
+        teacherid = id
+        
+        cur = mysql.connection.cursor()
+        
+        result = cur.execute("DELETE FROM Teacher WHERE TeacherID = %s", (teacherid))
+        
+        mysql.connection.commit()
+        
+        cur.close()
+        
+        return redirect(url_for('dashboard'))
+        
+    return render_template('admindeleteteacher.html')
 
 @app.route('/adstudent/<string:id>/', methods=['POST', 'GET'])
 def adstudent(id):
