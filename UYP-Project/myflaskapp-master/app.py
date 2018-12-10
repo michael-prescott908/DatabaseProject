@@ -35,28 +35,42 @@ mysql = MySQL(app)
 mail = Mail(app)
 
 
-def giveAccount(id):
-    new_pass = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(8))
+def giveAccount(id, message):
     cur = mysql.connection.cursor()
     cur.execute("SELECT FirstName, LastName, Email FROM Student WHERE StudentID=%s", id)
     res = cur.fetchone()
 
-    new_use = (res[1] + res[0] + ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(5)))
+    if message == "Accepted":
+        new_use = (res[1] + res[0] + ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(5)))
+        new_pass = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(8))
 
-    cur = mysql.connection.cursor()
-    cur.execute("INSERT INTO UserSystem (StudentID, Username, Password) VALUES (%s, %s, %s)", (id, new_use, str(sha256_crypt.hash(new_pass))))
-    mysql.connection.commit()
-    cur.close()
-
-    try:
-        msg = Message("Welcome to UYP!",
-            sender="flask.final@gmail.com",
-            recipients=[res[2]])
-        msg.body = "To start with UYP, your username is [" + new_use + "] and your password is [" + new_pass + "]!"
-        mail.send(msg)
-        return 'We good'
-    except Expception as e:
-        return str(e)
+        cur = mysql.connection.cursor()
+        cur.execute("INSERT INTO UserSystem (StudentID, Username, Password) VALUES (%s, %s, %s)", (id, new_use, str(sha256_crypt.hash(new_pass))))
+        mysql.connection.commit()
+        cur.close()
+        try:
+            msg = Message("Welcome to UYP!",
+                sender="flask.final@gmail.com",
+                recipients=[res[2]])
+            msg.body = "To start with UYP, your username is [" + new_use + "] and your password is [" + new_pass + "]!"
+            mail.send(msg)
+            return 'We good'
+        except Expception as e:
+            return str(e)
+    elif message == "Declined":
+        cur = mysql.connection.cursor()
+        cur.execute("DELETE FROM Student WHERE StudentID=%s", [id])
+        mysql.connection.commit()
+        cur.close()
+        try:
+            msg = Message("Message from UYP",
+                sender="flask.final@gmail.com",
+                recipients=[res[2]])
+            msg.body = "We are very sorry, but UYP could not accept you application at this time."
+            mail.send(msg)
+            return 'We good'
+        except Expception as e:
+            return str(e)
 
 
 # Index
@@ -130,12 +144,33 @@ def vadmin():
         if result > 0:
             return render_template('adminhome.html', students=students)
         else:
-            msg = 'No Articles Found'
+            msg = 'No students found'
             return render_template('adminhome.html', msg=msg)
 
 @app.route('/admin')
 def admin():
     return render_template('adminlogin.html')
+
+@app.route('/admineditstudents')
+def admineditstudents():
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+
+    elif session['username'] != 'Admin':
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+
+    else:
+        cur = mysql.connection.cursor()
+        # Get articles
+        result = cur.execute('SELECT * FROM student')
+        students = cur.fetchall()
+
+        if result > 0:
+            return render_template('admineditstudents.html', students=students)
+        else:
+            return render_template('admineditstudents.html', msg="No students")
 
 @app.route('/adminstudents')
 def adminstudents():
@@ -156,7 +191,7 @@ def adminstudents():
         if result > 0:
             return render_template('adminstudents.html', students=students)
         else:
-            msg = 'No Articles Found'
+            msg = 'No students found'
             return render_template('adminstudents.html', msg=msg)
 
 
@@ -179,7 +214,7 @@ def adminad():
         if result > 0:
             return render_template('adstudents.html', students=students)
         else:
-            msg = 'No Articles Found'
+            msg = 'No students found'
             return render_template('adstudents.html', msg=msg)
 
 @app.route('/adstudent/<string:id>/', methods=['POST', 'GET'])
@@ -226,13 +261,10 @@ def adstudent(id):
                 cur.execute("UPDATE Student SET AcceptedState=\'True\' WHERE StudentID=%s", [id])
                 mysql.connection.commit()
                 cur.close()
-                giveAccount([id])
+                giveAccount([id], "Accepted")
 
             else:
-                cur = mysql.connection.cursor()
-                cur.execute("DELETE FROM Student WHERE StudentID=%s", [id])
-                mysql.connection.commit()
-                cur.close()
+                giveAccount([id], "Declined")
             return redirect('/adminad')
 
     return render_template('adpage.html', student=student, school=school, uyp=uyp, health=health, disability=disability)
@@ -336,6 +368,268 @@ def adminupdateclass():
 
         return render_template('admin_update_class.html', form=form)
 
+@app.route('/admineditstudentsform/<string:id>', methods=['POST', 'GET'])
+def admineditstudent(id):
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+
+    elif session['username'] != 'Admin':
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+
+    else:
+        print("I am inside the full form thing")
+        form = FullEditForm(request.form)
+        cur = mysql.connection.cursor()
+        result = cur.execute("SELECT * FROM student")
+        student = cur.fetchall()
+        if request.method == 'POST':
+            StudentID = form.StudentID
+            FirstName = form.FirstName.data
+            LastName = form.LastName.data
+            MiddleInit = form.MiddleInit.data
+            Suffix = form.Suffix.data
+            Nickname = form.PreferredName.data
+            AddressLine1 = form.AddressLine1.data
+            AddressLine2 = form.AddressLine2.data
+            City = form.City.data
+            State = form.State.data
+            Zip = form.Zip.data
+            Birthdate = form.Birthdate.data
+            Gender = form.Gender.data
+            Ethnicity = form.Ethnicity.data
+            PhoneNumber = form.PhoneNumber.data
+            Email = form.Email.data
+            GraduationYear = form.Graduationyear.data
+            GT = form.GiftedTalented.data
+            Siblingnames = form.Siblingnames.data
+            Gaurdian1Name = form.Gaurdian1Name.data
+            Gaurdian1AddressLine1 = form.Gaurdian1AddressLine1.data
+            Gaurdian1AddressLine2 = form.Gaurdian1AddressLine2.data
+            Gaurdian1City = form.Gaurdian1City.data
+            Gaurdian1State = form.Gaurdian1State.data
+            Gaurdian1Zip = form.Gaurdian1Zip.data
+            Gaurdian1HomePhone = form.Gaurdian1homephone.data
+            Gaurdian1WorkPhone = form.Gaurdian1workphone.data
+            Gaurdian1CellPhone = form.Gaurdian1cellphone.data
+            Gaurdian2Name = form.Gaurdian2Name.data
+            Gaurdian2AddressLine1 = form.Gaurdian2AddressLine1.data
+            Gaurdian2AddressLine2 = form.Gaurdian2AddressLine2.data
+            Gaurdian2City = form.Gaurdian2City.data
+            Gaurdian2State = form.Gaurdian2State.data
+            Gaurdian2Zip = form.Gaurdian2Zip.data
+            Gaurdian2HomePhone = form.Gaurdian2homephone.data
+            Gaurdian2WorkPhone = form.Gaurdian2workphone.data
+            Gaurdian2CellPhone = form.Gaurdian2cellphone.data
+            SchoolType = form.Schooltype.data
+            SchoolName = form.Schoolname.data
+            SchoolDistrict = form.Schooldistrict.data
+            CurrentGrade = form.Schoolgrade.data
+            YearAccepted = form.YearAccepted.data
+            GradeAccepted = form.GradeAccepted.data
+            Status = form.Status.data
+            FundingStatus = form.FundingStatus.data
+            GrantName = form.GrantName.data
+            Mentors = form.Mentors.data
+            Siblings = form.Siblings.data
+            Disability = form.Disability.data
+            Health = form.Health.data
+            EnglishLearner = form.EnglishLearner.data
+            GT = form.GT.data
+            NationalClearingHouse = form.NationalClearingHouse.data
+            AdditionalInfo = form.AdditionalInfo.data
+
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("UPDATE Student SET FirstName=%s, LastName=%s, MiddleInitial=%s, Suffix=%s, Nickname=%s, Address_Line1=%s, Address_Line2=%s, City=%s, State=%s, Zip=%s, Birthdate=%s, Gender=%s, Ethnicity=%s, PhoneNumber=%s, Email=%s, GT=%s, Siblings=%s, AcceptedState=%s, NeedsInfo=%s WHERE StudentID=%s",
+                        (FirstName, LastName, MiddleInit, Suffix, Nickname, AddressLine1, AddressLine2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GT, Siblings, AcceptedState, NeedsInfo, [id]))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
+
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("UPDATE ParentInfo SET Name=%s, Address_Line1=%s, Address_Line2=%s, City=%s, State=%s, Zip=%s, HomePhone=%s, WorkPhone=%s, CellPhone=%s WHERE StudentID=%s",
+                        (Gaurdian1Name, Gaurdian1AddressLine1, Gaurdian1AddressLine2, Gaurdian1City, Gaurdian1State, Gaurdian1Zip, Gaurdian1HomePhone, Gaurdian1WorkPhone, Gaurdian1CellPhone, [id]))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
+
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("UPDATE ParentInfo SET Name=%s, Address_Line1=%s, Address_Line2=%s, City=%s, State=%s, Zip=%s, HomePhone=%s, WorkPhone=%s, CellPhone=%s WHERE StudentID=%s",
+                        (Gaurdian2Name, Gaurdian2AddressLine1, Gaurdian2AddressLine2, Gaurdian2City, Gaurdian2State, Gaurdian2Zip, Gaurdian2HomePhone, Gaurdian2WorkPhone, Gaurdian2CellPhone, [id]))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
+
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("UPDATE SchoolingInfo SET SchoolType=%s, SchoolName=%s, SchoolDistrict=%s, CurrentGrade=%s WHERE StudentID=%s",
+                                            (SchoolType, SchoolName, SchoolDistrict, CurrentGrade, [id]))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
+
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("UPDATE UYPReview SET StudentID=%s, Year=%s, Class=%s, Status=%s, GrantStatus=%s, NationalClearingHouse=%s, EnglishLearner=%s, Mentors=%s WHERE StudentID=%s",
+                                            (StudentID, YearAccepted, GradeAccepted, Status, GrantStatus, NationalClearingHouse, EnglishLearner, Mentors, [id]))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
+
+            return redirect('/vadmin')
+        return render_template('/admineditstudentsform.html', students=student, form=form)
+
+
+@app.route('/adminaddstudent', methods=['POST', 'GET'])
+def adminaddstudent():
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+
+    elif session['username'] != 'Admin':
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+
+    else:
+        form = FullEditForm(request.form)
+        cur = mysql.connection.cursor()
+        result = cur.execute("SELECT * FROM student")
+        student = cur.fetchall()
+        if request.method == 'POST':
+            StudentID = form.StudentID
+            FirstName = form.FirstName.data
+            LastName = form.LastName.data
+            MiddleInit = form.MiddleInit.data
+            Suffix = form.Suffix.data
+            Nickname = form.PreferredName.data
+            AddressLine1 = form.AddressLine1.data
+            AddressLine2 = form.AddressLine2.data
+            City = form.City.data
+            State = form.State.data
+            Zip = form.Zip.data
+            Birthdate = form.Birthdate.data
+            Gender = form.Gender.data
+            Ethnicity = form.Ethnicity.data
+            PhoneNumber = form.PhoneNumber.data
+            Email = form.Email.data
+            GraduationYear = form.Graduationyear.data
+            GT = form.GiftedTalented.data
+            Siblingnames = form.Siblingnames.data
+            Gaurdian1Name = form.Gaurdian1Name.data
+            Gaurdian1AddressLine1 = form.Gaurdian1AddressLine1.data
+            Gaurdian1AddressLine2 = form.Gaurdian1AddressLine2.data
+            Gaurdian1City = form.Gaurdian1City.data
+            Gaurdian1State = form.Gaurdian1State.data
+            Gaurdian1Zip = form.Gaurdian1Zip.data
+            Gaurdian1HomePhone = form.Gaurdian1homephone.data
+            Gaurdian1WorkPhone = form.Gaurdian1workphone.data
+            Gaurdian1CellPhone = form.Gaurdian1cellphone.data
+            Gaurdian2Name = form.Gaurdian2Name.data
+            Gaurdian2AddressLine1 = form.Gaurdian2AddressLine1.data
+            Gaurdian2AddressLine2 = form.Gaurdian2AddressLine2.data
+            Gaurdian2City = form.Gaurdian2City.data
+            Gaurdian2State = form.Gaurdian2State.data
+            Gaurdian2Zip = form.Gaurdian2Zip.data
+            Gaurdian2HomePhone = form.Gaurdian2homephone.data
+            Gaurdian2WorkPhone = form.Gaurdian2workphone.data
+            Gaurdian2CellPhone = form.Gaurdian2cellphone.data
+            SchoolType = form.Schooltype.data
+            SchoolName = form.Schoolname.data
+            SchoolDistrict = form.Schooldistrict.data
+            CurrentGrade = form.Schoolgrade.data
+            YearAccepted = form.YearAccepted.data
+            GradeAccepted = form.GradeAccepted.data
+            Status = form.Status.data
+            FundingStatus = form.FundingStatus.data
+            GrantName = form.GrantName.data
+            Mentors = form.Mentors.data
+            Siblings = form.Siblings.data
+            Disability = form.Disability.data
+            Health = form.Health.data
+            EnglishLearner = form.EnglishLearner.data
+            GT = form.GT.data
+            NationalClearingHouse = form.NationalClearingHouse.data
+            AdditionalInfo = form.AdditionalInfo.data
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("UPDATE Student SET FirstName=%s, LastName=%s, MiddleInitial=%s, Suffix=%s, Nickname=%s, Address_Line1=%s, Address_Line2=%s, City=%s, State=%s, Zip=%s, Birthdate=%s, Gender=%s, Ethnicity=%s, PhoneNumber=%s, Email=%s, GT=%s, Siblings=%s, AcceptedState=%s, NeedsInfo=%s WHERE StudentID=%s",
+                        (FirstName, LastName, MiddleInit, Suffix, Nickname, AddressLine1, AddressLine2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GT, Siblings, AcceptedState, NeedsInfo, [id]))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
+
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("UPDATE ParentInfo SET Name=%s, Address_Line1=%s, Address_Line2=%s, City=%s, State=%s, Zip=%s, HomePhone=%s, WorkPhone=%s, CellPhone=%s WHERE StudentID=%s",
+                        (Gaurdian1Name, Gaurdian1AddressLine1, Gaurdian1AddressLine2, Gaurdian1City, Gaurdian1State, Gaurdian1Zip, Gaurdian1HomePhone, Gaurdian1WorkPhone, Gaurdian1CellPhone, [id]))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
+
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("UPDATE ParentInfo SET Name=%s, Address_Line1=%s, Address_Line2=%s, City=%s, State=%s, Zip=%s, HomePhone=%s, WorkPhone=%s, CellPhone=%s WHERE StudentID=%s",
+                        (Gaurdian2Name, Gaurdian2AddressLine1, Gaurdian2AddressLine2, Gaurdian2City, Gaurdian2State, Gaurdian2Zip, Gaurdian2HomePhone, Gaurdian2WorkPhone, Gaurdian2CellPhone, [id]))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
+
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("UPDATE SchoolingInfo SET SchoolType=%s, SchoolName=%s, SchoolDistrict=%s, CurrentGrade=%s WHERE StudentID=%s",
+                                            (SchoolType, SchoolName, SchoolDistrict, CurrentGrade, [id]))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
+
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("UPDATE UYPReview SET StudentID=%s, Year=%s, Class=%s, Status=%s, GrantStatus=%s, NationalClearingHouse=%s, EnglishLearner=%s, Mentors=%s WHERE StudentID=%s",
+                                            (StudentID, YearAccepted, GradeAccepted, Status, GrantStatus, NationalClearingHouse, EnglishLearner, Mentors, [id]))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
+
+            return redirect('/vadmin')
+        return render_template('/admineditstudentsform.html', students=student, form=form)
+
+@app.route('/adminedit', methods=['POST', 'GET'])
+def adminedit():
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+
+    elif session['username'] != 'Admin':
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+
+    else:
+        cur = mysql.connection.cursor()
+        # Get articles
+        result = cur.execute('SELECT * FROM student WHERE AcceptedState=\'False\' AND NeedsInfo=\'True\'')
+        students = cur.fetchall()
+
+        if result > 0:
+            return render_template('adminstudents.html', students=students)
+        else:
+            msg = 'No students found'
+            return render_template('adminstudents.html', msg=msg)
+
+
 @app.route('/studentpage/<string:id>/', methods=['POST', 'GET'])
 def studentinfo(id):
     if 'username' not in session:
@@ -398,7 +692,7 @@ def updateprofile():
         return render_template('home.html')
     else:
         form = RegisterForm(request.form)
-        if request.method == 'POST': #and form.validate():
+        if request.method == 'POST' and form.validate():
             print("I am here in update profile")
             StudentID = form.StudentID
             FirstName = form.FirstName.data
@@ -640,6 +934,106 @@ class UYPReviewForm(Form):
     NationalClearingHouse = StringField('National Clearing House Info (255 Characters or less)', [validators.Length(min=1, max=255)])
     AdditionalInfo = StringField('Any additional Info')
 
+class FullEditForm(Form):
+    StudentID = uuid.uuid4()
+
+    FirstName = StringField('First Name', [validators.Regexp('^[A-Za-z]+$'),
+                                           validators.Length(min=1, max=50)])
+    LastName = StringField('Last Name', [validators.Regexp('^[A-Za-z]+$'),
+                                         validators.Length(min=1, max=50)])
+    MiddleInit = StringField('Middle Initial', [validators.Regexp('^[A-Za-z]+$'),
+                                                validators.Length(min=1, max=1)])
+    Suffix = SelectField(label='Suffix', choices=SUFFIX_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
+    PreferredName = StringField('Preferred Name', [validators.Regexp('^[A-Za-z]+$'),
+                                                   validators.Length(min=1, max=50)])
+    AddressLine1 = StringField('Address Line 1', [validators.Regexp('^(.*?)+$'),
+                                                  validators.Length(min=1, max=50)])
+    AddressLine2 = StringField('Address Line 2', [validators.Regexp('^(.*?)+$'),
+                                                  validators.Length(min=1, max=50)])
+    City = StringField('City', [validators.Regexp('^[A-Za-z]+$'),
+                                validators.Length(min=1, max=50)])
+    State = SelectField(label='State', choices=STATE_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    Zip = StringField('Zip', [validators.Regexp('^[1234567890]+$'),
+                                validators.Length(min=5, max=5)])
+    Birthdate = StringField('Birthdate', [validators.Regexp('^[1234567890]+$'),
+                                          validators.Length(min=1, max=50)])
+    Gender = SelectField(label='Gender', choices=GENDER_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    Ethnicity = StringField('Ethnicity', [validators.Regexp('^[A-Za-z]+$'),
+                                          validators.Length(min=1, max=50)])
+    Schooltype = SelectField(label='Type of schooling', choices=SCHOOL_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
+    Schoolname = StringField('School Name', [validators.Regexp('^[A-Za-z]+$'),
+                                             validators.Length(min=1, max=50)])
+    Schooldistrict = StringField('School District', [validators.Regexp('^[A-Za-z]+$'),
+                                             validators.Length(min=1, max=50)])
+    Schoolgrade = SelectField(label='Upcoming Grade', choices=CLASS_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
+
+    #TODO: Fix this
+    Graduationyear = StringField('Graduation Year', [validators.Regexp('^[1234567890]+$'),
+                                                     validators.Length(min=4, max=4)])
+    Expectedhighschool = StringField('Expected Highschool', [validators.Regexp('^[A-Za-z]+$'),
+                                                             validators.Length(min=1, max=50)])
+    Email = StringField('Email', [validators.Regexp('^\w+[@]\w+[.]\w+$'),
+                                  validators.Length(min=6, max=50)])
+    PhoneNumber = StringField('Phone Number', [validators.Regexp('^\d+$'),
+                                               validators.Length(min=10, max=10)])
+    Siblingnames = StringField('List Siblings in UYP (If Any) ([FirstName] [LastName], etc.])', [validators.Regexp('(^[A-Za-z]+\s[A-Za-z]+[,]\s){0,20}$'),
+                                                                                                 validators.Length(min=1, max=100)])
+    Gaurdian1Name = StringField('Gaurdian 1 Name', [validators.Regexp('^[A-Za-z]+\s[A-Za-z]+$'),
+                                                    validators.Length(min=1, max=50)])
+    Gaurdian1AddressLine1 = StringField('Gaurdian 1 Address Line 1', [validators.Regexp('^(.*?)+$'),
+                                                                      validators.Length(min=1, max=50)])
+    Gaurdian1AddressLine2 = StringField('Gaurdian 1 Address Line 2', [validators.Regexp('^(.*?)+$'),
+                                                                      validators.Length(min=1, max=50)])
+    Gaurdian1City = StringField('City', [validators.Regexp('^[A-Za-z]+$'),
+                                validators.Length(min=1, max=50)])
+    Gaurdian1State = SelectField(label='State', choices=STATE_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    Gaurdian1Zip = StringField('Zip', [validators.Regexp('^[1234567890]+$'),
+                                validators.Length(min=5, max=5)])
+    Gaurdian1email = StringField('Gaurdian 1 Email', [validators.Regexp('^\w+[@]\w+[.]\w+$'),
+                                                      validators.Length(min=6, max=50)])
+    Gaurdian1homephone = StringField('Gaurdian 1 Home Phone', [validators.Regexp('^\d+$'),
+                                                               validators.Length(min=10, max=10)])
+    Gaurdian1workphone = StringField('Gaurdian 1 Work Phone', [validators.Regexp('^\d+$'),
+                                                               validators.Length(min=10, max=10)])
+    Gaurdian1cellphone = StringField('Gaurdian 1 Cell Phone', [validators.Regexp('^\d+$'),
+                                                               validators.Length(min=10, max=10)])
+    Gaurdian2Name = StringField('Gaurdian 2 Name', [validators.Regexp('^[A-Za-z]+\s[A-Za-z]+$'),
+                                                    validators.Length(min=1, max=50)])
+    Gaurdian2AddressLine1 = StringField('Gaurdian 2 Address Line 1', [validators.Regexp('^(.*?)+$'),
+                                                                      validators.Length(min=1, max=50)])
+    Gaurdian2AddressLine2 = StringField('Gaurdian 2 Address Line 2', [validators.Regexp('^(.*?)+$'),
+                                                                      validators.Length(min=1, max=50)])
+    Gaurdian2City = StringField('City', [validators.Regexp('^[A-Za-z]+$'),
+                                validators.Length(min=1, max=50)])
+    Gaurdian2State = SelectField(label='State', choices=STATE_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    Gaurdian2Zip = StringField('Zip', [validators.Regexp('^[1234567890]+$'),
+                                validators.Length(min=5, max=5)])
+    Gaurdian2email = StringField('Gaurdian 2 Email', [validators.Regexp('^\w+[@]\w+[.]\w+$'),
+                                                      validators.Length(min=6, max=50)])
+    Gaurdian2homephone = StringField('Gaurdian 2 Home Phone', [validators.Regexp('^\d+$'),
+                                                               validators.Length(min=10, max=10)])
+    Gaurdian2workphone = StringField('Gaurdian 2 Work Phone', [validators.Regexp('^\d+$'),
+                                                               validators.Length(min=10, max=10)])
+    Gaurdian2cellphone = StringField('Gaurdian 2 Cell Phone', [validators.Regexp('^\d+$'),
+                                                               validators.Length(min=10, max=10)])
+    GiftedTalented = SelectField(label='Gifted and Talented?', choices=BOOL_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    YearAccepted = StringField('Year Accepted', [validators.Regexp('^[1234567890]+$'),
+                                                validators.Length(min=4, max=4)])
+    GradeAccepted = SelectField(label='Grade Accepted ', choices=CLASS_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
+    Status = SelectField(label='Interest Status ', choices=BOOL_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    FundingStatus = SelectField(label='Is the student grant funded? ', choices=BOOL_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    GrantName = StringField('If funded, what is the fund name?', [validators.Regexp('^[a-zA-Z ]+$'),
+                                                validators.Length(min=1, max=50)])
+    Mentors = StringField('Names of mentors for the student', [validators.Regexp('^[a-zA-Z ,]+$'),
+                                                validators.Length(min=1, max=50)])
+    Siblings = StringField('Names of siblings in UYP', [validators.Regexp('^[a-zA-Z ,]+$'),
+                                                validators.Length(min=1, max=50)])
+    Disability = StringField('Disability information (255 Characters or less)', [validators.Length(min=1, max=255)])
+    Health = StringField('Health information (255 Characters or less)', [validators.Length(min=1, max=255)])
+    EnglishLearner = SelectField(label='Is the student an English learner?', choices=BOOL_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    GT = SelectField(label='Is the student part of Gifted and Talented?', choices=BOOL_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
+    NationalClearingHouse = StringField('National Clearing House Info (255 Characters or less)', [validators.Length(min=1, max=255)])
+    AdditionalInfo = StringField('Any additional Info')
 
 # Register Form
 class RegisterForm(Form):
@@ -726,11 +1120,6 @@ class RegisterForm(Form):
                                                                validators.Length(min=10, max=10)])
     GiftedTalented = SelectField(label='Gifted and Talented?', choices=BOOL_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
 
-    Password = PasswordField('Password', [
-        validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords do not match')
-    ])
-    confirm = PasswordField('Confirm Password')
 
 """
 class DataHolder:
@@ -840,7 +1229,7 @@ class UpdateForm(DataHolder):
 def register():
     form = RegisterForm(request.form)
     print("I am here")
-    if request.method == 'POST': #and form.validate():
+    if request.method == 'POST' and form.validate():
         StudentID = uuid.uuid4()
         FirstName = form.FirstName.data
         LastName = form.LastName.data
@@ -935,31 +1324,36 @@ def register():
 def login():
     if request.method == 'POST':
         # Get Form Fields
-        email = request.form['email']
+        username = request.form['username']
         password_candidate = request.form['password']
 
         # Create cursor
         cur = mysql.connection.cursor()
 
-        cur.execute('SELECT * FROM Student')
+        #cur.execute('SELECT * FROM Student')
         #WHERE Email=' + '\'' + email + '\'')
 
         # Get user by username
-        #cur.execute('SELECT * FROM UserSystem WHERE Email=' + '\'' + email + '\'')
+        res = cur.execute('SELECT * FROM UserSystem WHERE Username=%s', [username])
 
-        if True:
+        if res > 0:
             # Get stored hash
             data = cur.fetchone()
             #password = data['password']
             session['number'] = data[0]
-            fName = data[1]
-            lName = data[2]
+            u_name = data[1]
+            p_word = data[2]
 
             # Compare Passwords
-            if True:
+            if sha256_crypt.verify(password_candidate, p_word):
                 # Passed
+                cur = mysql.connection.cursor()
+                cur.execute("SELECT FirstName, LastName, Email FROM Student WHERE StudentID=%s", [data[0]])
+                res = cur.fetchone()
+                cur.close()
+
                 session['logged_in'] = True
-                session['username'] = fName + " " + lName
+                session['username'] = res[0] + " " + res[1]
 
                 flash('You are now logged in', 'success')
                 return redirect('/')
@@ -1024,7 +1418,7 @@ def dashboard():
     if result > 0:
         return render_template('dashboard.html', articles=articles)
     else:
-        msg = 'No Articles Found'
+        msg = 'No students found'
         return render_template('dashboard.html', msg=msg)
     # Close connection
     cur.close()
@@ -1060,47 +1454,6 @@ def add_article():
         return redirect(url_for('dashboard'))
 
     return render_template('add_article.html', form=form)
-
-
-# Edit Article
-@app.route('/edit_article/<string:id>', methods=['GET', 'POST'])
-@is_logged_in
-def edit_article(id):
-    # Create cursor
-    cur = mysql.connection.cursor()
-
-    # Get article by id
-    result = cur.execute("SELECT * FROM articles WHERE id = %s", [id])
-
-    article = cur.fetchone()
-    cur.close()
-    # Get form
-    form = ArticleForm(request.form)
-
-    # Populate article form fields
-    form.title.data = article['title']
-    form.body.data = article['body']
-
-    if request.method == 'POST' and form.validate():
-        title = request.form['title']
-        body = request.form['body']
-
-        # Create Cursor
-        cur = mysql.connection.cursor()
-        app.logger.info(title)
-        # Execute
-        cur.execute ("UPDATE articles SET title=%s, body=%s WHERE id=%s",(title, body, id))
-        # Commit to DB
-        mysql.connection.commit()
-
-        #Close connection
-        cur.close()
-
-        flash('Article Updated', 'success')
-
-        return redirect(url_for('dashboard'))
-
-    return render_template('edit_article.html', form=form)
 
 # Delete Article
 @app.route('/delete_article/<string:id>', methods=['POST'])
