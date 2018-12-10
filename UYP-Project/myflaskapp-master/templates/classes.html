@@ -1,11 +1,20 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-  <h1>Classes Page</h1>
+    {% if session['username'] == 'Admin'%}
+        <h1>Delete Classes</h1>
+    {% else %}
+        <h1>Classes Page</h1>
+    {% endif %}
 
   <div id="main" margin="top">
       <br/>
+      {% if session['username'] == 'Admin'%}
+          <a href="/admindeleteclass/{{Class[0]}}" class="btn btn-primary btn-lg">Delete Class</a>
+      {% endif %}
+      <br/>
       <table class="table table-dark" margin="top">
+          <br/>
         <tr>
         <th>Class ID:</th><th>{{Class[0]}}</th>
         </tr>
