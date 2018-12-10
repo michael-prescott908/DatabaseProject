@@ -159,6 +159,21 @@ def articles():
     # Close connection
     cur.close()
 
+@app.route('/myprofile')
+def myprofile():
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+    else:
+        # Create cursor
+        cur = mysql.connection.cursor()
+
+        # Get articles
+        result = cur.execute("SELECT * FROM Student WHERE StudentID=%s", [session['number']])
+
+        res = cur.fetchone()
+
+        return render_template('myprofile.html', user=res)
 
 #Single Article
 @app.route('/article/<string:id>/')
@@ -418,6 +433,7 @@ def login():
             # Get stored hash
             data = cur.fetchone()
             #password = data['password']
+            session['number'] = data[0]
             fName = data[1]
             lName = data[2]
 
