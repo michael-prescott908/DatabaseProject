@@ -1,0 +1,35 @@
+{% extends 'adminlayout.html' %}
+
+{% block body %}
+  <h1>Add Class</h1>
+  {% from "includes/_formhelpers.html" import render_field %}
+  <form method="POST" action="">
+    <div class="form-group">
+      {{render_field(form.courseid, class_="form-control")}}
+    </div>
+    <div class="form-group">
+      {{render_field(form.course_name, class_="form-control")}}
+    </div>
+    <div class="form-group">
+      {{render_field(form.department, class_="form-control")}}
+    </div>
+    <div class="form-group">
+      {{render_field(form.session)}}
+    </div>
+    <div class="form-group">
+      {{render_field(form.timeslot, class_="form-control")}}
+    </div>
+    <div class="form-group">
+      {{render_field(form.graderange, class_="form-control")}}
+    </div>
+    <div class="form-group">
+      {{render_field(form.maxcapacity, class_="form-control")}}
+    </div>
+    <div class="form-group">
+      {{render_field(form.TeacherID, class_="form-control")}}
+    </div>
+    <div class="form-group">
+      {{render_field(form.roomnumber, class_="form-control")}}
+    <p><input type="submit" class="btn btn-primary" value="Submit"></p>
+  </form>
+{% endblock %}

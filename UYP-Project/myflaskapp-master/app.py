@@ -284,7 +284,7 @@ class ClassForm(Form):
     graderange = SelectField(label='Grade Range', choices=GRADE_RANGES, validators=[validators.Regexp('^(?!--Select--$)')])
     maxcapacity = StringField('Maximum Capacity', [validators.Regexp('^[0-9]+$'), validators.Length(min=1, max=3)])
     roomnumber = StringField('Room #', [validators.Regexp('^[A-Za-z0-9]+$'), validators.Length(min=1, max=5)])
-
+    TeacherID = StringField('Teacher ID', [validators.Regexp('^[A-Za-z0-9]+$'), validators.Length(min=1, max=5)])
 
 # Add Class
 @app.route('/adminaddclass', methods=['GET', 'POST'])
@@ -298,12 +298,12 @@ def adminaddclass():
         return render_template('home.html')
 
     else:
-        form = ArticleForm(request.form)
+        form = ClassForm(request.form)
         if request.method == 'POST' and form.validate():
             courseid = form.courseid.data
             course_name = form.course_name.data
             department = form.department.data
-            session = form.session.data
+            Session = form.session.data
             timeslot = form.timeslot.data
             graderange = form.graderange.data
             maxcapacity = form.maxcapacity.data
@@ -313,7 +313,7 @@ def adminaddclass():
             cur = mysql.connection.cursor()
 
             # Execute
-            cur.execute("INSERT INTO Courses(CourseId, Course_Name, Department, Session, TimeSlot, GradeRange, MaxCapacity, CurCapacity, TeacherID, RoomNo, HasTeacher, IsActive) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",(courseid, course_name, department, session, timeslot, graderange, maxcapacity, maxcapacity, '', roomnumber, 'False', 'False'))
+            cur.execute("INSERT INTO Courses(CourseId, Course_Name, Deptartment, Session, TimeSlot, GradeRange, MaxCapacity, CurCapacity, TeacherID, RoomNo, HasTeacher, IsActive) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",(courseid, course_name, department, Session, timeslot, graderange, maxcapacity, maxcapacity, '', roomnumber, 'False', 'False'))
 
             # Commit to DB
             mysql.connection.commit()
@@ -323,9 +323,9 @@ def adminaddclass():
 
             flash('Class Created', 'success')
 
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('vadmin'))
 
-        return render_template('admin_add_class.html', form=form)
+        return render_template('addclass.html', form=form)
 
 # Update Class
 @app.route('/adminupdateclass', methods=['GET', 'POST'])
@@ -827,7 +827,8 @@ def listClasses():
         cur = mysql.connection.cursor()
 
         # Execute
-        result = cur.execute("SELECT * FROM Courses WHERE IsActive = 'True'")
+        result = cur.execute("SELECT * FROM Courses") 
+        # WHERE IsActive = 'True'")
 
         # Commit to DB
         res = cur.fetchall()
