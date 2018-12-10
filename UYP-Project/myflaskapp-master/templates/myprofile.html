@@ -1,80 +1,65 @@
 {% extends 'layout.html' %}
 
 {% block body %}
- <!-- <h3>{{user[2]}}, {{user[1]}} {{user[3]}} {{user[4]}}</h3>-->
-<table class="table table-hover">
-  <thead>
-  <th>StudentID:</th><th>{{user[0]}}</th>
-  </thead>
-  <thead>
-  <th>First Name: </th><th>{{user[1]}}</th>
-  <br/>
-  </thead>
-  <thead>
-  <th>Last Name: </th><th>{{user[2]}}</th>
-  <br/>
-  </thead>
-  <thead>
-   <th>Middle Inital: </th><th>{{user[3]}}</th>
-  <br/>
-  </thead>
-  <thead>
-   <th>Suffix:</th><th>{{user[4]}}</th>
-  <br/>
-  </thead>
-  <thead>
-  <th>Preferred Name:</th><th>{{user[5]}}</th>
-  <br/>
-  </thead>
-  <thead>
-  <th>Address Line 1:</th><th>{{user[6]}}</th>
-  <br/>
-  </thead>
-  <thead>
-  <th>Address Line 2:</th><th>{{user[7]}}</th>
-  <br/>
-  </thead>
-  <thead>
-  <th>City:</th><th>{{user[8]}}</th>
-  <br/>
-  </thead>
-  <thead>
-  <th>State:</th><th>{{user[9]}}</th>
-  <br/>
-  </thead>
-  <thead>
-  <th>Zip:</th><th>{{user[10]}}</th>
-  <br/>
-  </thead>
-  <thead>
-  <th>Birthdate:</th><th>{{user[11]}}</th>
-  <br/>
-  </thead>
-  <thead>
-  <th>Gender:</th><th>{{user[12]}}</th>
-  <br/>
-  </thead>
-  <thead>
-  <th>Ethnicity:</th><th>{{user[13]}}</th>
-  <br/>
-  </thead>
-  <thead>
-  <th>Phone:</th><th>{{user[12]}}</th>
-  <br/>
-  </thead>
-  <thead>
-  <th>Email</th><th>{{user[13]}}</th>
-  <br/>
-  </thead>
-  <thead>
-  <th>Graduation Year</th><th>{{user[14]}}</th>
-  <br/>
-  </thead>
-  <thead>
-  <th>Gifted and Talented?:</th><th>{{user[15]}}</th>
-  <br/>
-  </thead>
-  <br/>
-</table>
 
+<div id="main" margin="top">
+    <h2>My Profile</h2>
+    <br/>
+    <table class="table table-dark" margin="top">
+      <tr>
+      <th>StudentID:</th><th>{{user[0]}}</th>
+      </tr>
+      <tr>
+      <th>First Name: </th><th>{{user[1]}}</th>
+      </tr>
+      <tr>
+      <th>Last Name: </th><th>{{user[2]}}</th>
+      </tr>
+      <tr>
+       <th>Middle Inital: </th><th>{{user[3]}}</th>
+      </tr>
+      <tr>
+       <th>Suffix:</th><th>{{user[4]}}</th>
+      </tr>
+      <tr>
+      <th>Preferred Name:</th><th>{{user[5]}}</th>
+      </tr>
+      <tr>
+      <th>Address Line 1:</th><th>{{user[6]}}</th>
+      </tr>
+      <tr>
+      <th>Address Line 2:</th><th>{{user[7]}}</th>
+      </tr>
+      <tr>
+      <th>City:</th><th>{{user[8]}}</th>
+      </tr>
+      <tr>
+      <th>State:</th><th>{{user[9]}}</th>
+      </tr>
+      <tr>
+      <th>Zip:</th><th>{{user[10]}}</th>
+      </tr>
+      <tr>
+      <th>Birthdate: </th><th>{{user[11]}}</th>
+      </tr>
+      <tr>
+      <th>Gender: </th><th>{{user[12]}}</th>
+      </tr>
+      <tr>
+      <th>Ethnicity: </th><th>{{user[13]}}</th>
+      </tr>
+      <tr>
+      <th>Phone: </th><th>{{user[14]}}</th>
+      </tr>
+      <tr>
+      <th>Email: </th><th>{{user[15]}}</th>
+      </tr>
+      <tr>
+      <th>Graduation Year: </th><th>{{user[16]}}</th>
+      </tr>
+      <tr>
+      <th>Gifted and Talented?: </th><th>{{user[17]}}</th>
+      </tr>
+    </div>
+</div>
 {% endblock %}

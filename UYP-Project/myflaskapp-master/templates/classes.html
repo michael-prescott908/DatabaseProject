@@ -1,17 +1,6 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-  <h1>All Classes</h1>
-  <ul class="list-group">
-    {% for class in classes %}
-      <li class="list-group-item"><a href="classpage/{{class[0]}}">Course ID: {{class[0]}} Course Name: {{class[1]}} Department: {{class[2]}} Session: {{class[3]}} Time Slot: {{class[4]}} Grade Range: {{class[5]}} Maximum Capacity: {{class[6]}} Current Capacity: {{class[7]}}</a></li>
-    {% endfor %}
-  </ul>
-{% endblock %}
-
-{% extends 'layout.html' %}
-
-{% block body %}
   <h1>Classes Page</h1>
   <form action="/classpage" method="GET">
     <ul class="list-group">

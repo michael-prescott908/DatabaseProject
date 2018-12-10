@@ -8,6 +8,7 @@ from passlib.hash import sha256_crypt
 from functools import wraps
 import collections
 import uuid
+from flask_material import Material
 
 
 app = Flask(__name__)
@@ -20,6 +21,7 @@ app.config['MYSQL_DB'] =  'uypdbfinal'
 #app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # init MYSQL
 mysql = MySQL(app)
+Material(app)
 
 # Index
 @app.route('/', methods=['GET', 'POST'])
@@ -140,24 +142,21 @@ def studentinfo(id):
 
         return render_template('studentpage.html', student=student)
 
-# Articles
-@app.route('/articles')
-def articles():
-    # Create cursor
-    cur = mysql.connection.cursor()
-
-    # Get articles
-    result = cur.execute("SELECT * FROM articles")
-
-    articles = cur.fetchall()
-
-    if result > 0:
-        return render_template('articles.html', articles=articles)
+@app.route('/updateprofile')
+def updateprofile():
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
     else:
-        msg = 'No Articles Found'
-        return render_template('articles.html', msg=msg)
-    # Close connection
-    cur.close()
+        cur = mysql.connection.cursor()
+
+        # Get article
+        result = cur.execute("SELECT * FROM student WHERE StudentID=%s", [session['number']])
+
+        student = cur.fetchone()
+
+        return render_template('updateprofile.html', student=student)
+
 
 @app.route('/myprofile')
 def myprofile():
