@@ -1,0 +1,54 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <h1>All Classes</h1>
+  <ul class="list-group">
+    {% for class in classes %}
+      <li class="list-group-item"><a href="classpage/{{class[0]}}">Course ID: {{class[0]}} Course Name: {{class[1]}} Department: {{class[2]}} Session: {{class[3]}} Time Slot: {{class[4]}} Grade Range: {{class[5]}} Maximum Capacity: {{class[6]}} Current Capacity: {{class[7]}}</a></li>
+    {% endfor %}
+  </ul>
+{% endblock %}
+
+{% extends 'layout.html' %}
+
+{% block body %}
+  <h1>Classes Page</h1>
+  <form action="/classpage" method="GET">
+    <ul class="list-group">
+	  {% for class in classes %}
+        <div class="form-group">
+          <label>Class ID</label>
+          <a>{{class[0]}}</a><br/>
+        </div>
+        <div class="form-group">
+          <label>Class Name</label>
+          <a>{{class[1]}}</a> <br/>
+        </div>
+		<div class="form-group">
+		  <label>Department</label>
+		  <a>{{class[2]}}</a> <br/>
+		</div>
+		<div class="form-group">
+		  <label>Session</label>
+		  <a>{{class[3]}}</a> <br/>
+		</div>
+		<div class="form-group">
+		  <label>Time Slot</label>
+		  <a>{{class[4]}}</a><br/>
+		</div>
+		<div class="form-group">
+		  <label>Grade Range</label>
+		  <a>{{class[5]}}</a><br/>
+		</div>
+		<div class="form-group">
+		  <label>Maximum Capacity</label>
+		  <a>{{class[6]}}</a><br/>
+		</div>
+		<div class="form-group">
+		  <label>Current Capacity</label>
+		  <a>{{class[7]}}</a><br/>
+		</div>
+	  {% endfor %}
+	</ul>
+  </form>
+{% endblock %}
