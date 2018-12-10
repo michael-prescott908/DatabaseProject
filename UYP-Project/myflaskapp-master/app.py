@@ -120,55 +120,64 @@ def adminstudents():
         else:
             msg = 'No Articles Found'
             return render_template('adminstudents.html', msg=msg)
-		
-	
+        
+    
 SESSION_TYPES = (('--Select--', '--Select--'), ('Week 1', 'Week 1'), ('Week 2','Week 2'), ('Week 3', 'Week 3'))
 TIME_SLOTS = (('--Select--', '--Select--'), ('9:45 – 11:15am', '9:45 – 11:15am'), ('1:15-2:45 pm', '1:15-2:45 pm'))
 GRADE_RANGES = (('--Select--', '--Select--'), ('4-5', '4-5'), ('6-8', '6-8'), ('9-12', '9-12'))
-		
+        
 # Class Form Class
 class ClassForm(Form):
     courseid = StringField('Course ID', [validators.Regexp('^[A-Za-z][A-Za-z][0-9][0-9]$'), validators.Length(min=4, max=4)])
     course_name = StringField('Course Name', [validators.Regexp('^[A-Za-z0-9]+$'), validators.Length(min=3, max=200)])
-	department = StringField('Department', [validators.Regexp('^[A-Za-z0-9]+$'), validators.Length(min=3, max=200)])
-	session = SelectField(label='Session', choices=SESSION_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
-	timeslot = SelectField(label='Time Slot', choices=TIME_SLOTS, validators=[validators.Regexp('^(?!--Select--$)')])
-	graderange = SelectField(label='Grade Range', choices=GRADE_RANGES, validators=[validators.Regexp('^(?!--Select--$)')])
-	maxcapacity = StringField('Maximum Capacity', [validators.Regexp('^[0-9]+$'), validators.Length(min=1, max=3)])
-	roomnumber = StringField('Room #', [validators.Regexp('^[A-Za-z0-9]+$'), validators.Length(min=1, max=5)])
-	
+    department = StringField('Department', [validators.Regexp('^[A-Za-z0-9]+$'), validators.Length(min=3, max=200)])
+    session = SelectField(label='Session', choices=SESSION_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
+    timeslot = SelectField(label='Time Slot', choices=TIME_SLOTS, validators=[validators.Regexp('^(?!--Select--$)')])
+    graderange = SelectField(label='Grade Range', choices=GRADE_RANGES, validators=[validators.Regexp('^(?!--Select--$)')])
+    maxcapacity = StringField('Maximum Capacity', [validators.Regexp('^[0-9]+$'), validators.Length(min=1, max=3)])
+    roomnumber = StringField('Room #', [validators.Regexp('^[A-Za-z0-9]+$'), validators.Length(min=1, max=5)])
+    
 
 # Add Article
 @app.route('/adminaddclass', methods=['GET', 'POST'])
 def adminaddclass():
-    form = ArticleForm(request.form)
-    if request.method == 'POST' and form.validate():
-        courseid = form.courseid.data
-        course_name = form.course_name.data
-		department = form.department.data
-		session = form.session.data
-		timeslot = form.timeslot.data
-		graderange = form.graderange.data
-		maxcapacity = form.maxcapacity.data
-		roomnumber = form.roomnumber.data
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
 
-        # Create Cursor
-        cur = mysql.connection.cursor()
+    elif session['username'] != 'Admin':
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
 
-        # Execute
-        cur.execute("INSERT INTO Courses(CourseId, Course_Name, Department, Session, TimeSlot, GradeRange, MaxCapacity, CurCapacity, TeacherID, RoomNo, HasTeacher) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",(courseid, course_name, department, session, timeslot, graderange, maxcapacity, maxcapacity, '', roomnumber, 'False'))
+    else:
+        form = ArticleForm(request.form)
+        if request.method == 'POST' and form.validate():
+            courseid = form.courseid.data
+            course_name = form.course_name.data
+            department = form.department.data
+            session = form.session.data
+            timeslot = form.timeslot.data
+            graderange = form.graderange.data
+            maxcapacity = form.maxcapacity.data
+            roomnumber = form.roomnumber.data
 
-        # Commit to DB
-        mysql.connection.commit()
+            # Create Cursor
+            cur = mysql.connection.cursor()
 
-        #Close connection
-        cur.close()
+            # Execute
+            cur.execute("INSERT INTO Courses(CourseId, Course_Name, Department, Session, TimeSlot, GradeRange, MaxCapacity, CurCapacity, TeacherID, RoomNo, HasTeacher) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",(courseid, course_name, department, session, timeslot, graderange, maxcapacity, maxcapacity, '', roomnumber, 'False'))
 
-        flash('Class Created', 'success')
+            # Commit to DB
+            mysql.connection.commit()
 
-        return redirect(url_for('dashboard'))
+            #Close connection
+            cur.close()
 
-    return render_template('admin_add_class.html', form=form)
+            flash('Class Created', 'success')
+
+            return redirect(url_for('dashboard'))
+
+        return render_template('admin_add_class.html', form=form)
 
 #Single student
 @app.route('/studentpage/<string:id>/')
