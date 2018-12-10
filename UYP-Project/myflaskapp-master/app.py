@@ -5,6 +5,7 @@ from flask_admin import Admin
 from flask_login import UserMixin
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators, SelectField
 from passlib.hash import sha256_crypt
+from flask_mail import Mail, Message
 from functools import wraps
 import collections
 import uuid
@@ -20,15 +21,24 @@ app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'root'
 app.config['MYSQL_DB'] =  'uypdbfinal'
+app.config.update(
+    DEBUG=True,
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=465,
+    MAIL_USE_SSL=True,
+    MAIL_USERNAME = 'flask.final@gmail.com',
+    MAIL_PASSWORD = 'databasefinal'
+)
 #app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 # init MYSQL
 mysql = MySQL(app)
+mail = Mail(app)
 
 
 def giveAccount(id):
     new_pass = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(8))
     cur = mysql.connection.cursor()
-    cur.execute("SELECT FirstName, LastName FROM Student WHERE StudentID=%s", id)
+    cur.execute("SELECT FirstName, LastName, Email FROM Student WHERE StudentID=%s", id)
     res = cur.fetchone()
 
     new_use = (res[1] + res[0] + ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(5)))
@@ -37,6 +47,16 @@ def giveAccount(id):
     cur.execute("INSERT INTO UserSystem (StudentID, Username, Password) VALUES (%s, %s, %s)", (id, new_use, str(sha256_crypt.hash(new_pass))))
     mysql.connection.commit()
     cur.close()
+
+    try:
+        msg = Message("Welcome to UYP!",
+            sender="flask.final@gmail.com",
+            recipients=[res[2]])
+        msg.body = "To start with UYP, your username is [" + new_use + "] and your password is [" + new_pass + "]!"
+        mail.send(msg)
+        return 'We good'
+    except Expception as e:
+        return str(e)
 
 
 # Index
