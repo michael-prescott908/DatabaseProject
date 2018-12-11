@@ -41,12 +41,12 @@ mysql = MySQL(app)
 mail = Mail(app)
 
 
-@app.route('/export', methods=['GET', 'POST'])            
+@app.route('/export', methods=['GET', 'POST'])
 def generateCSV():
     def generate():
         data = StringIO()
         w = csv.writer(data)
-		
+
         print("WE GENERATING BABY")
 
         # write header
@@ -54,7 +54,7 @@ def generateCSV():
         yield data.getvalue()
         data.seek(0)
         data.truncate(0)
-        
+
         cur = mysql.connection.cursor()
         result = cur.execute("SELECT Takes.CourseID,Course_Name,Deptartment,Session,TimeSlot,GradeRange,MaxCapacity,CurCapacity FROM Takes,Courses WHERE StudentID = %s AND Takes.CourseID = Courses.CourseID", [session['number']])
         results = cur.fetchall()
@@ -157,7 +157,7 @@ def adminlogin():
             print(password)
 
             # Compare Passwords
-            if True:
+            if sha256_crypt.verify(password_candidate, p_word):
                 # Passed
                 session['logged_in'] = True
                 session['username'] = "Admin"
@@ -1083,7 +1083,7 @@ def listClasses():
     else:
         # Create Cursor
         cur = mysql.connection.cursor()
-        
+
         generateCSV()
 
         # Execute
@@ -1581,7 +1581,7 @@ def login():
             p_word = data[2]
 
             # Compare Passwords
-            if True:#sha256_crypt.verify(password_candidate, p_word):
+            if sha256_crypt.verify(password_candidate, p_word):
                 # Passed
                 cur = mysql.connection.cursor()
                 cur.execute("SELECT FirstName, LastName, Email FROM Student WHERE StudentID=%s", [data[0]])
