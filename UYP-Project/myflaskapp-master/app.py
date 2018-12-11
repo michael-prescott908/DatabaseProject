@@ -1122,6 +1122,26 @@ def classpage(id):
 
         return render_template('classes.html', Class=res)
 
+
+@app.route('/unclasspage/<string:id>/', methods=['POST', 'GET'])
+def unclasspage(id):
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+    else:
+        cur = mysql.connection.cursor()
+
+        # Execute
+        result = cur.execute("SELECT * FROM Courses WHERE CourseID=%s", [id])
+
+        #Commit to DB
+        res = cur.fetchone()
+
+        #Close Connection
+        cur.close()
+
+        return render_template('unclasses.html', Class=res)
+
 # List My Classes
 @app.route('/<string:id>/', methods=['GET'])
 def listMyClasses(id):
@@ -1142,10 +1162,38 @@ def listMyClasses(id):
         cur.close()
 
         if result > 0:
-            return render_template('myclasses.html', classes=res)
+            print("I am in the list classes")
+            return render_template('myunclasses.html', classes=res)
         else:
             msg = 'No Classes Found'
-            return render_template('myclasses.html', msg=msg)
+            return render_template('myunclasses.html', msg=msg)
+
+
+# List My Classes
+@app.route('/myunclasses/<string:id>/', methods=['GET'])
+def listMyUnClasses(id):
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+    else:
+        #Create Cursor
+        cur = mysql.connection.cursor()
+
+        # Execute
+        result = cur.execute("SELECT * FROM Courses,Takes WHERE Takes.StudentID = %s AND Takes.CourseID = Courses.CourseID", [session['number']])
+
+        #Commit to DB
+        res = cur.fetchall()
+
+        #Close Connection
+        cur.close()
+
+        if result > 0:
+            print("I am going to load myunclasses.html")
+            return render_template('myunclasses.html', classes=res)
+        else:
+            msg = 'No Classes Found'
+            return render_template('myunclasses.html', msg=msg)
 
 
 #Single Article

@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    {% if session['username'] == 'Admin'%}
+        <h1>Delete Classes</h1>
+    {% else %}
+        <h1>Classes Page</h1>
+    {% endif %}
+
+  <div id="main" margin="top">
+      <br/>
+      <a href="/unregisterclass/{{Class[0]}}" class="btn btn-primary btn-lg">Unregister Class</a>
+      <br/>
+      <table class="table table-dark" margin="top">
+          <br/>
+        <tr>
+        <th>Class ID:</th><th>{{Class[0]}}</th>
+        </tr>
+        <tr>
+        <th>Class Name: </th><th>{{Class[1]}}</th>
+        </tr>
+        <tr>
+        <th>Department: </th><th>{{Class[2]}}</th>
+        </tr>
+        <tr>
+         <th>Session: </th><th>{{Class[3]}}</th>
+        </tr>
+        <tr>
+         <th>Time Slot:</th><th>{{Class[4]}}</th>
+        </tr>
+        <tr>
+        <th>Grade Range:</th><th>{{Class[5]}}</th>
+        </tr>
+        <tr>
+        <th>Maximum Capacity:</th><th>{{Class[6]}}</th>
+        </tr>
+        <tr>
+        <th>Current Capacity:</th><th>{{Class[7]}}</th>
+        </tr>
+  </div>
+{% endblock %}
