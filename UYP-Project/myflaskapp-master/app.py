@@ -201,7 +201,7 @@ def registerclass(id):
         # Create Cursor
         cur = mysql.connection.cursor()
         cur2 = mysql.connection.cursor()
-
+        """
         cur2.execute("INSERT INTO TAKES (StudentID, CourseID) VALUES (%s, %s)", (session['number'], id))
         mysql.connection.commit()
         flash("You have registered for the class!", 'success')
@@ -244,7 +244,7 @@ def registerclass(id):
             else:
                 flash("CONFLICT: This class is not available for your grade range", 'danger')
                 return render_template('home.html')
-                """
+                
 
 
 @app.route('/adminad')
@@ -326,28 +326,28 @@ def adminaddteacher():
 
 @app.route('/admindeleteteacher')
 def admindeleteteacher(id):
-	if 'username' not in session:
-		flash("You are not authorized", 'danger')
-		return render_template('home.html')
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
 
-	elif session['username'] != 'Admin':
-		flash("You are not authorized", 'danger')
-		return render_template('home.html')
+    elif session['username'] != 'Admin':
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
 
-	else:
-		teacherid = id
+    else:
+        teacherid = id
 
-		cur = mysql.connection.cursor()
+        cur = mysql.connection.cursor()
 
-		result = cur.execute("DELETE FROM Teacher WHERE TeacherID = %s", (teacherid))
+        result = cur.execute("DELETE FROM Teacher WHERE TeacherID = %s", (teacherid))
 
-		mysql.connection.commit()
+        mysql.connection.commit()
 
-		cur.close()
+        cur.close()
 
-		return redirect(url_for('dashboard'))
+        return redirect(url_for('dashboard'))
 
-	return render_template('admindeleteteacher.html')
+    return render_template('admindeleteteacher.html')
 
 @app.route('/adstudent/<string:id>/', methods=['POST', 'GET'])
 def adstudent(id):
