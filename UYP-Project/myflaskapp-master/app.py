@@ -4,6 +4,7 @@ from flask_mysqldb import MySQL
 from flask_admin import Admin
 from flask_login import UserMixin
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators, SelectField
+from wtforms.fields.html5 import DateField
 from passlib.hash import sha256_crypt
 from flask_mail import Mail, Message
 from functools import wraps
@@ -1225,17 +1226,14 @@ class RegisterForm(Form):
     Suffix = SelectField(label='Suffix', choices=SUFFIX_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
     PreferredName = StringField('Preferred Name', [validators.Regexp('^[A-Za-z]+$'),
                                                    validators.Length(min=1, max=50)])
-    AddressLine1 = StringField('Address Line 1', [validators.Regexp('^(.*?)+$'),
-                                                  validators.Length(min=1, max=50)])
-    AddressLine2 = StringField('Address Line 2', [validators.Regexp('^(.*?)+$'),
-                                                  validators.Length(min=1, max=50)])
-    City = StringField('City', [validators.Regexp('^[A-Za-z]+$'),
+    AddressLine1 = StringField('Address Line 1', [validators.Regexp('\d{1,5}\s\w.\s(\b\w*\b\s){1,2}\w*\.'), validators.Length(min=1, max=50)])
+    AddressLine2 = StringField('Address Line 2', [validators.Regexp('\d{1,5}\s\w.\s(\b\w*\b\s){1,2}\w*\.'), validators.Length(min=1, max=50)])
+    City = StringField('City', [validators.Regexp('^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$'),
                                 validators.Length(min=1, max=50)])
     State = SelectField(label='State', choices=STATE_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
     Zip = StringField('Zip', [validators.Regexp('^[1234567890]+$'),
                                 validators.Length(min=5, max=5)])
-    Birthdate = StringField('Birthdate', [validators.Regexp('^[1234567890]+$'),
-                                          validators.Length(min=1, max=50)])
+    Birthdate = DateField('Birthdate', format='Y%-m%-d%', validators=[validators.InputRequired()], )
     Gender = SelectField(label='Gender', choices=GENDER_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
     Ethnicity = StringField('Ethnicity', [validators.Regexp('^[A-Za-z]+$'),
                                           validators.Length(min=1, max=50)])
