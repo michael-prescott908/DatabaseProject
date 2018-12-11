@@ -239,7 +239,10 @@ def registerclass(id):
             print("The Grade: %s", [thegrade])
 
             if thegrade <= upper and thegrade >= lower:
-                flash("YOU CAN FUCKING REGISTER", 'danger')
+                cur5 = mysql.connection.cursor()
+                cur5.execute("INSERT INTO TAKES (StudentID, CourseID) VALUES (%s, %s)", (session['number'], id))
+                mysql.connection.commit()
+                flash("You have registered for the class!", 'success')
                 return render_template('home.html')
             else:
                 flash("CONFLICT: This class is not available for your grade range", 'danger')
