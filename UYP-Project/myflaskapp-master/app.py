@@ -47,9 +47,13 @@ def giveAccount(id, message):
         new_pass = ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(8))
 
         cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO UserSystem (StudentID, Username, Password) VALUES (%s, %s, %s)", (id, new_use, str(sha256_crypt.hash(new_pass))))
-        mysql.connection.commit()
+        result = cur.execute("SELECT * FROM UserSystem WHERE StudentID=%s", [id])
         cur.close()
+        if result == 0:
+            cur = mysql.connection.cursor()
+            cur.execute("INSERT INTO UserSystem (StudentID, Username, Password) VALUES (%s, %s, %s)", (id, new_use, str(sha256_crypt.hash(new_pass))))
+            mysql.connection.commit()
+            cur.close()
         try:
             msg = Message("Welcome to UYP!",
                 sender="flask.final@gmail.com",
@@ -61,9 +65,13 @@ def giveAccount(id, message):
             return str(e)
     elif message == "Declined":
         cur = mysql.connection.cursor()
-        cur.execute("DELETE FROM Student WHERE StudentID=%s", [id])
-        mysql.connection.commit()
+        result = cur.execute("SELECT * FROM Student WHERE StudentID=%s", [id])
         cur.close()
+        if result > 0:
+            cur = mysql.connection.cursor()
+            cur.execute("DELETE FROM Student WHERE StudentID=%s", [id])
+            mysql.connection.commit()
+            cur.close()
         try:
             msg = Message("Message from UYP",
                 sender="flask.final@gmail.com",
@@ -201,7 +209,7 @@ def registerclass(id):
         # Create Cursor
         cur = mysql.connection.cursor()
         cur2 = mysql.connection.cursor()
-        """
+
         cur2.execute("INSERT INTO TAKES (StudentID, CourseID) VALUES (%s, %s)", (session['number'], id))
         mysql.connection.commit()
         flash("You have registered for the class!", 'success')
@@ -239,15 +247,12 @@ def registerclass(id):
             print("The Grade: %s", [thegrade])
 
             if thegrade <= upper and thegrade >= lower:
-                cur5 = mysql.connection.cursor()
-                cur5.execute("INSERT INTO TAKES (StudentID, CourseID) VALUES (%s, %s)", (session['number'], id))
-                mysql.connection.commit()
-                flash("You have registered for the class!", 'success')
+                flash("YOU CAN FUCKING REGISTER", 'danger')
                 return render_template('home.html')
             else:
                 flash("CONFLICT: This class is not available for your grade range", 'danger')
                 return render_template('home.html')
-                
+                """
 
 
 @app.route('/adminad')
@@ -329,28 +334,28 @@ def adminaddteacher():
 
 @app.route('/admindeleteteacher')
 def admindeleteteacher(id):
-    if 'username' not in session:
-        flash("You are not authorized", 'danger')
-        return render_template('home.html')
+	if 'username' not in session:
+		flash("You are not authorized", 'danger')
+		return render_template('home.html')
 
-    elif session['username'] != 'Admin':
-        flash("You are not authorized", 'danger')
-        return render_template('home.html')
+	elif session['username'] != 'Admin':
+		flash("You are not authorized", 'danger')
+		return render_template('home.html')
 
-    else:
-        teacherid = id
+	else:
+		teacherid = id
 
-        cur = mysql.connection.cursor()
+		cur = mysql.connection.cursor()
 
-        result = cur.execute("DELETE FROM Teacher WHERE TeacherID = %s", (teacherid))
+		result = cur.execute("DELETE FROM Teacher WHERE TeacherID = %s", (teacherid))
 
-        mysql.connection.commit()
+		mysql.connection.commit()
 
-        cur.close()
+		cur.close()
 
-        return redirect(url_for('dashboard'))
+		return redirect(url_for('dashboard'))
 
-    return render_template('admindeleteteacher.html')
+	return render_template('admindeleteteacher.html')
 
 @app.route('/adstudent/<string:id>/', methods=['POST', 'GET'])
 def adstudent(id):
@@ -821,10 +826,15 @@ def studentinfo(id):
             AdditionalInfo = form.AdditionalInfo.data
 
             cur = mysql.connection.cursor()
-            cur.execute("INSERT INTO UYPReview (StudentID, Year, Class, Status, GrantStatus, GrantName, NationalClearingHouse, EnglishLearner, Mentors)" +
-                                    " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", ([id], YearAccepted, GradeAccepted, Status, FundingStatus, GrantName, NationalClearingHouse, EnglishLearner, Mentors))
-            mysql.connection.commit()
+            result = cur.execute("SELECT * FROM UYPReview WHERE StudentID=%s", [id])
             cur.close()
+
+            if result == 0:
+                cur = mysql.connection.cursor()
+                cur.execute("INSERT INTO UYPReview (StudentID, Year, Class, Status, GrantStatus, GrantName, NationalClearingHouse, EnglishLearner, Mentors)" +
+                                    " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)", ([id], YearAccepted, GradeAccepted, Status, FundingStatus, GrantName, NationalClearingHouse, EnglishLearner, Mentors))
+                mysql.connection.commit()
+                cur.close()
 
             cur = mysql.connection.cursor()
             cur.execute("UPDATE Student SET Siblings=%s, GT=%s, NeedsInfo=\'False\' WHERE StudentID=%s", (Siblings, GT, [id]))
@@ -832,14 +842,24 @@ def studentinfo(id):
             cur.close()
 
             cur = mysql.connection.cursor()
-            cur.execute("INSERT INTO HealthInfo (StudentID, Conditions) VALUES (%s, %s)", ([id], Health))
-            mysql.connection.commit()
+            result = cur.execute("SELECT * FROM HealthInfo WHERE StudentID=%s", [id])
             cur.close()
 
+            if result == 0:
+                cur = mysql.connection.cursor()
+                cur.execute("INSERT INTO HealthInfo (StudentID, Conditions) VALUES (%s, %s)", ([id], Health))
+                mysql.connection.commit()
+                cur.close()
+
             cur = mysql.connection.cursor()
-            cur.execute("INSERT INTO DisabilityInfo (StudentID, Disability) VALUES (%s, %s)", ([id], Disability))
-            mysql.connection.commit()
+            result = cur.execute("SELECT * FROM DisabilityInfo WHERE StudentID=%s", [id])
             cur.close()
+
+            if result == 0:
+                cur = mysql.connection.cursor()
+                cur.execute("INSERT INTO DisabilityInfo (StudentID, Disability) VALUES (%s, %s)", ([id], Disability))
+                mysql.connection.commit()
+                cur.close()
 
             return redirect('/')
 
