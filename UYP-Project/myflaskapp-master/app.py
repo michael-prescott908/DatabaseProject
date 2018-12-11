@@ -19,9 +19,9 @@ import re
 app = Flask(__name__)
 
 # Config MySQL
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root'
+app.config['MYSQL_HOST'] = 'db.summersend.serverswc.com'
+app.config['MYSQL_USER'] = 'michael'
+app.config['MYSQL_PASSWORD'] = 'databaseproject'
 app.config['MYSQL_DB'] =  'uypdbfinal'
 app.config.update(
     DEBUG=True,
@@ -1226,21 +1226,23 @@ class RegisterForm(Form):
     Suffix = SelectField(label='Suffix', choices=SUFFIX_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
     PreferredName = StringField('Preferred Name', [validators.Regexp('^[A-Za-z]+$'),
                                                    validators.Length(min=1, max=50)])
-    AddressLine1 = StringField('Address Line 1', [validators.Regexp('\d{1,5}\s\w.\s(\b\w*\b\s){1,2}\w*\.'), validators.Length(min=1, max=50)])
-    AddressLine2 = StringField('Address Line 2', [validators.Regexp('\d{1,5}\s\w.\s(\b\w*\b\s){1,2}\w*\.'), validators.Length(min=1, max=50)])
+    AddressLine1 = StringField('Address Line 1', [validators.Regexp('^[a-zA-Z0-9\s\.,]{1,40}$'), validators.Length(min=1, max=50)])
+    AddressLine2 = StringField('Address Line 2', [validators.Regexp('^[a-zA-Z0-9\s\.,]{1,40}$'), validators.Length(min=0, max=50)])
     City = StringField('City', [validators.Regexp('^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$'),
                                 validators.Length(min=1, max=50)])
     State = SelectField(label='State', choices=STATE_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
     Zip = StringField('Zip', [validators.Regexp('^[1234567890]+$'),
                                 validators.Length(min=5, max=5)])
-    Birthdate = DateField('Birthdate', format='Y%-m%-d%', validators=[validators.InputRequired()], )
+    Birthdate = StringField('Birthdate (mm-dd-YYYY)', [validators.Regexp('^[0-9-]+$'),
+                                                        validators.Length(min=1, max=50)])
+
     Gender = SelectField(label='Gender', choices=GENDER_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
-    Ethnicity = StringField('Ethnicity', [validators.Regexp('^[A-Za-z]+$'),
+    Ethnicity = StringField('Ethnicity', [validators.Regexp('^[A-Za-z\s]+$'),
                                           validators.Length(min=1, max=50)])
     Schooltype = SelectField(label='Type of schooling', choices=SCHOOL_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
-    Schoolname = StringField('School Name', [validators.Regexp('^[A-Za-z]+$'),
+    Schoolname = StringField('School Name', [validators.Regexp('^[A-Za-z\s]+$'),
                                              validators.Length(min=1, max=50)])
-    Schooldistrict = StringField('School District', [validators.Regexp('^[A-Za-z]+$'),
+    Schooldistrict = StringField('School District', [validators.Regexp('^[A-Za-z\s]+$'),
                                              validators.Length(min=1, max=50)])
     Schoolgrade = SelectField(label='Upcoming Grade', choices=CLASS_TYPES, validators=[validators.Regexp('^(?!--Select--$)')])
 
@@ -1253,8 +1255,8 @@ class RegisterForm(Form):
                                   validators.Length(min=6, max=50)])
     PhoneNumber = StringField('Phone Number', [validators.Regexp('^\d+$'),
                                                validators.Length(min=10, max=10)])
-    Siblingnames = StringField('List Siblings in UYP (If Any) ([FirstName] [LastName], etc.])', [validators.Regexp('(^[A-Za-z]+\s[A-Za-z]+[,]\s){0,20}$'),
-                                                                                                 validators.Length(min=1, max=100)])
+    Siblingnames = StringField('List Siblings in UYP (If Any) ([FirstName] [LastName], etc.])', [validators.Regexp('[a-zA-Z\s,]'),
+                                                                                                 validators.Length(min=0, max=100)])
     Gaurdian1Name = StringField('Gaurdian 1 Name', [validators.Regexp('^[A-Za-z]+\s[A-Za-z]+$'),
                                                     validators.Length(min=1, max=50)])
     Gaurdian1AddressLine1 = StringField('Gaurdian 1 Address Line 1', [validators.Regexp('^(.*?)+$'),
@@ -1294,110 +1296,6 @@ class RegisterForm(Form):
     Gaurdian2cellphone = StringField('Gaurdian 2 Cell Phone', [validators.Regexp('^\d+$'),
                                                                validators.Length(min=10, max=10)])
     GiftedTalented = SelectField(label='Gifted and Talented?', choices=BOOL_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')])
-
-
-"""
-class DataHolder:
-    Form = None
-    Student = None
-    ParentInfo1 = None
-    ParentInfo2 = None
-
-# Register Form
-"""
-"""
-class UpdateForm(DataHolder):
-
-    StudentID = Student[0]
-
-    FirstName = StringField('First Name', [validators.Regexp('^[A-Za-z]+$'),
-                                           validators.Length(min=1, max=50)], default=Student[1])
-    LastName = StringField('Last Name', [validators.Regexp('^[A-Za-z]+$'),
-                                         validators.Length(min=1, max=50)], default=Student[2])
-    MiddleInit = StringField('Middle Initial', [validators.Regexp('^[A-Za-z]+$'),
-                                                validators.Length(min=1, max=1)], default=Student[3])
-    Suffix = SelectField(label='Suffix', choices=SUFFIX_TYPES, validators=[validators.Regexp('^(?!--Select--$)')], default=Student[4])
-    PreferredName = StringField('Preferred Name', [validators.Regexp('^[A-Za-z]+$'),
-                                                   validators.Length(min=1, max=50)], default=Student[5])
-    AddressLine1 = StringField('Address Line 1', [validators.Regexp('^(.*?)+$'),
-                                                  validators.Length(min=1, max=50)], default=Student[6])
-    AddressLine2 = StringField('Address Line 2', [validators.Regexp('^(.*?)+$'),
-                                                  validators.Length(min=1, max=50)], default=Student[7])
-    City = StringField('City', [validators.Regexp('^[A-Za-z]+$'),
-                                validators.Length(min=1, max=50)], default=Student[8])
-    State = SelectField(label='State', choices=STATE_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')], default=Student[9])
-    Zip = StringField('Zip', [validators.Regexp('^[1234567890]+$'),
-                                validators.Length(min=5, max=5)], default=Student[10])
-    Birthdate = StringField('Birthdate', [validators.Regexp('^[1234567890]+$'),
-                                          validators.Length(min=1, max=50)], default=Student[11])
-    Gender = SelectField(label='Gender', choices=GENDER_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')], default=Student[12])
-    Ethnicity = StringField('Ethnicity', [validators.Regexp('^[A-Za-z]+$'),
-                                          validators.Length(min=1, max=50)], default=Student[13])
-    Schooltype = SelectField(label='Type of schooling', choices=SCHOOL_TYPES, validators=[validators.Regexp('^(?!--Select--$)')], default=SchoolInfo[1])
-    Schoolname = StringField('School Name', [validators.Regexp('^[A-Za-z]+$'),
-                                             validators.Length(min=1, max=50)], default=SchoolInfo[2])
-    Schooldistrict = StringField('School District', [validators.Regexp('^[A-Za-z]+$'),
-                                             validators.Length(min=1, max=50)], default=SchoolInfo[3])
-    Schoolgrade = SelectField(label='Upcoming Grade', choices=CLASS_TYPES, validators=[validators.Regexp('^(?!--Select--$)')], default=SchoolInfo[4])
-
-    Expectedhighschool = StringField('Expected Highschool', [validators.Regexp('^[A-Za-z]+$'),
-                                                             validators.Length(min=1, max=50)], default=SchoolInfo[5])
-    #TODO: Fix this
-    Graduationyear = StringField('Graduation Year', [validators.Regexp('^[1234567890]+$'),
-                                                     validators.Length(min=4, max=4)], default=SchoolInfo[6])
-    Email = StringField('Email', [validators.Regexp('^\w+[@]\w+[.]\w+$'),
-                                  validators.Length(min=6, max=50)], default=Student[15])
-    PhoneNumber = StringField('Phone Number', [validators.Regexp('^\d+$'),
-                                               validators.Length(min=10, max=10)], default=Student[14])
-    Siblingnames = StringField('List Siblings in UYP (If Any) ([FirstName] [LastName], etc.])', [validators.Regexp('(^[A-Za-z]+\s[A-Za-z]+[,]\s){0,20}$'),
-                                                                                                 validators.Length(min=1, max=100)], default=Student[16])
-    Gaurdian1Name = StringField('Gaurdian 1 Name', [validators.Regexp('^[A-Za-z]+\s[A-Za-z]+$'),
-                                                    validators.Length(min=1, max=50)], default=ParentInfo1[1])
-    Gaurdian1AddressLine1 = StringField('Gaurdian 1 Address Line 1', [validators.Regexp('^(.*?)+$'),
-                                                                      validators.Length(min=1, max=50)], default=ParentInfo1[2])
-    Gaurdian1AddressLine2 = StringField('Gaurdian 1 Address Line 2', [validators.Regexp('^(.*?)+$'),
-                                                                      validators.Length(min=1, max=50)], default=ParentInfo1[3])
-    Gaurdian1City = StringField('City', [validators.Regexp('^[A-Za-z]+$'),
-                                validators.Length(min=1, max=50)], default=ParentInfo1[4])
-    Gaurdian1State = SelectField(label='State', choices=STATE_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')], default=ParentInfo1[5])
-    Gaurdian1Zip = StringField('Zip', [validators.Regexp('^[1234567890]+$'),
-                                validators.Length(min=5, max=5)], default=ParentInfo1[6])
-    Gaurdian1email = StringField('Gaurdian 1 Email', [validators.Regexp('^\w+[@]\w+[.]\w+$'),
-                                                      validators.Length(min=6, max=50)], default=ParentInfo1[7])
-    Gaurdian1homephone = StringField('Gaurdian 1 Home Phone', [validators.Regexp('^\d+$'),
-                                                               validators.Length(min=10, max=10)], default=ParentInfo1[8])
-    Gaurdian1workphone = StringField('Gaurdian 1 Work Phone', [validators.Regexp('^\d+$'),
-                                                               validators.Length(min=10, max=10)], default=ParentInfo1[9])
-    Gaurdian1cellphone = StringField('Gaurdian 1 Cell Phone', [validators.Regexp('^\d+$'),
-                                                               validators.Length(min=10, max=10)], default=ParentInfo1[10])
-    Gaurdian2Name = StringField('Gaurdian 2 Name', [validators.Regexp('^[A-Za-z]+\s[A-Za-z]+$'),
-                                                    validators.Length(min=1, max=50)], default=Student[0])
-    Gaurdian2AddressLine1 = StringField('Gaurdian 2 Address Line 1', [validators.Regexp('^(.*?)+$'),
-                                                                      validators.Length(min=1, max=50)], default=ParentInfo2[1])
-    Gaurdian2AddressLine2 = StringField('Gaurdian 2 Address Line 2', [validators.Regexp('^(.*?)+$'),
-                                                                      validators.Length(min=1, max=50)], default=ParentInfo2[2])
-    Gaurdian2City = StringField('City', [validators.Regexp('^[A-Za-z]+$'),
-                                validators.Length(min=1, max=50)], default=ParentInfo2[3])
-    Gaurdian2State = SelectField(label='State', choices=STATE_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')], default=ParentInfo2[4])
-    Gaurdian2Zip = StringField('Zip', [validators.Regexp('^[1234567890]+$'),
-                                validators.Length(min=5, max=5)], default=ParentInfo2[5])
-    Gaurdian2email = StringField('Gaurdian 2 Email', [validators.Regexp('^\w+[@]\w+[.]\w+$'),
-                                                      validators.Length(min=6, max=50)], default=ParentInfo2[6])
-    Gaurdian2homephone = StringField('Gaurdian 2 Home Phone', [validators.Regexp('^\d+$'),
-                                                               validators.Length(min=10, max=10)], default=ParentInfo2[7])
-    Gaurdian2workphone = StringField('Gaurdian 2 Work Phone', [validators.Regexp('^\d+$'),
-                                                               validators.Length(min=10, max=10)], default=ParentInfo2[8])
-    Gaurdian2cellphone = StringField('Gaurdian 2 Cell Phone', [validators.Regexp('^\d+$'),
-                                                               validators.Length(min=10, max=10)], default=ParentInfo2[9])
-    GiftedTalented = SelectField(label='Gifted and Talented?', choices=BOOL_ABBREV, validators=[validators.Regexp('^(?!--Select--$)')], default=Student[17])
-
-    Password = PasswordField('Password', [
-        validators.DataRequired(),
-        validators.EqualTo('confirm', message='Passwords do not match')
-    ])
-    confirm = PasswordField('Confirm Password')
-    """
-
 
 # User Register
 @app.route('/register', methods=['GET', 'POST'])
@@ -1448,49 +1346,62 @@ def register():
         CurrentGrade = form.Schoolgrade.data
 
 
-        print(FirstName + " " + LastName + " " + MiddleInit)
         print("My new ID is" + str(StudentID))
             #spits out any and all errors**
             # Create cursor
         cur = mysql.connection.cursor()
             # Execute query
-        cur.execute("INSERT INTO Student(StudentID, FirstName, LastName, MiddleInitial, Suffix, Nickname, Address_Line1, Address_Line2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GT, AcceptedState, NeedsInfo) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                        (StudentID, FirstName, LastName, MiddleInit, Suffix, Nickname, Address_Line1, Address_Line2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GT, 'False', 'True'))
-            # Commit to DB
-        mysql.connection.commit()
-            # Close connection
-        cur.close()
+        res = cur.execute("SELCET * FROM STUDENT WHERE StudentID=%s", str(StudentID))
+        res.close()
 
-        cur = mysql.connection.cursor()
-            # Execute query
-        cur.execute("INSERT INTO ParentInfo(StudentID, Name, Address_Line1, Address_Line2, City, State, Zip, HomePhone, WorkPhone, CellPhone) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                        (StudentID, Gaurdian1Name, Gaurdian1AddressLine1, Gaurdian1AddressLine2, Gaurdian1City, Gaurdian1State, Gaurdian1Zip, Gaurdian1homephone, Gaurdian1workphone, Gaurdian1cellphone))
-            # Commit to DB
-        mysql.connection.commit()
-            # Close connection
-        cur.close()
+        if res == 0:
+            print(FirstName + " " + LastName + " " + MiddleInit)
+            print("My new ID is" + str(StudentID))
+                #spits out any and all errors**
+                # Create cursor
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("INSERT INTO Student(StudentID, FirstName, LastName, MiddleInitial, Suffix, Nickname, Address_Line1, Address_Line2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GT, AcceptedState, NeedsInfo) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                            (StudentID, FirstName, LastName, MiddleInit, Suffix, Nickname, Address_Line1, Address_Line2, City, State, Zip, Birthdate, Gender, Ethnicity, PhoneNumber, Email, GT, 'False', 'True'))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
 
-        cur = mysql.connection.cursor()
-            # Execute query
-        cur.execute("INSERT INTO ParentInfo(StudentID, Name, Address_Line1, Address_Line2, City, State, Zip, HomePhone, WorkPhone, CellPhone) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                                        (StudentID, Gaurdian2Name, Gaurdian2AddressLine1, Gaurdian2AddressLine2, Gaurdian2City, Gaurdian2State, Gaurdian2Zip, Gaurdian2homephone, Gaurdian2workphone, Gaurdian2cellphone))
-            # Commit to DB
-        mysql.connection.commit()
-            # Close connection
-        cur.close()
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("INSERT INTO ParentInfo(StudentID, Name, Address_Line1, Address_Line2, City, State, Zip, HomePhone, WorkPhone, CellPhone) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                            (StudentID, Gaurdian1Name, Gaurdian1AddressLine1, Gaurdian1AddressLine2, Gaurdian1City, Gaurdian1State, Gaurdian1Zip, Gaurdian1homephone, Gaurdian1workphone, Gaurdian1cellphone))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
 
-        cur = mysql.connection.cursor()
-            # Execute query
-        cur.execute("INSERT INTO SchoolingInfo(StudentID, SchoolType, SchoolName, SchoolDistrict, CurrentGrade, GraduationYear) VALUES(%s, %s, %s, %s, %s, %s)",
-                                        (StudentID, SchoolType, SchoolName, SchoolDistrict, CurrentGrade, GraduationYear))
-            # Commit to DB
-        mysql.connection.commit()
-            # Close connection
-        cur.close()
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("INSERT INTO ParentInfo(StudentID, Name, Address_Line1, Address_Line2, City, State, Zip, HomePhone, WorkPhone, CellPhone) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                                            (StudentID, Gaurdian2Name, Gaurdian2AddressLine1, Gaurdian2AddressLine2, Gaurdian2City, Gaurdian2State, Gaurdian2Zip, Gaurdian2homephone, Gaurdian2workphone, Gaurdian2cellphone))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
 
-        flash('You have successfuly registered for UYP!', 'success')
+            cur = mysql.connection.cursor()
+                # Execute query
+            cur.execute("INSERT INTO SchoolingInfo(StudentID, SchoolType, SchoolName, SchoolDistrict, CurrentGrade, GraduationYear) VALUES(%s, %s, %s, %s, %s, %s)",
+                                            (StudentID, SchoolType, SchoolName, SchoolDistrict, CurrentGrade, GraduationYear))
+                # Commit to DB
+            mysql.connection.commit()
+                # Close connection
+            cur.close()
 
-        return redirect('/')
+            flash('You have successfuly registered for UYP!', 'success')
+
+            return redirect('/')
+        else:
+            flash('You have already registered for UYP!', 'danger')
+
+            return redirect('/')
     return render_template('register.html', form=form)
 
 
