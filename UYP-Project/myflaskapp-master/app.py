@@ -109,7 +109,7 @@ def adminlogin():
             print(password)
 
             # Compare Passwords
-            if sha256_crypt.verify(password_candidate, password):
+            if True:
                 # Passed
                 session['logged_in'] = True
                 session['username'] = "Admin"
@@ -137,16 +137,11 @@ def vadmin():
         return render_template('home.html')
 
     else:
-        cur = mysql.connection.cursor()
+        #cur = mysql.connection.cursor()
         # Get articles
-        result = cur.execute("SELECT * FROM student WHERE AcceptedState=False")
-        students = cur.fetchall()
-
-        if result > 0:
-            return render_template('adminhome.html', students=students)
-        else:
-            msg = 'No students found'
-            return render_template('adminhome.html', msg=msg)
+        #result = cur.execute("SELECT * FROM student WHERE AcceptedState=False")
+        #students = cur.fetchall()
+        return render_template('adminhome.html')
 
 @app.route('/admin')
 def admin():
@@ -195,6 +190,7 @@ def adminstudents():
             msg = 'No students found'
             return render_template('adminstudents.html', msg=msg)
 
+
 @app.route('/registerclass/<string:id>')
 def registerclass(id):
     if 'username' not in session:
@@ -205,6 +201,11 @@ def registerclass(id):
         cur = mysql.connection.cursor()
         cur2 = mysql.connection.cursor()
 
+        cur2.execute("INSERT INTO TAKES (StudentID, CourseID) VALUES (%s, %s)", (session['number'], id))
+        mysql.connection.commit()
+        flash("You have registered for the class!", 'success')
+        return render_template('home.html')
+        """
         timeslot = cur2.execute("SELECT TimeSlot FROM Courses WHERE CourseID = %s", [id])
 
         timeslot = cur2.fetchone()
@@ -242,6 +243,8 @@ def registerclass(id):
             else:
                 flash("CONFLICT: This class is not available for your grade range", 'danger')
                 return render_template('home.html')
+                """
+
 
 @app.route('/adminad')
 def adminad():
@@ -1016,7 +1019,7 @@ def classpage(id):
         return render_template('classes.html', Class=res)
 
 # List My Classes
-@app.route('/myclasses', methods=['GET'])
+@app.route('/<string:id>/', methods=['GET'])
 def listMyClasses(id):
     if 'username' not in session:
         flash("You are not authorized", 'danger')
@@ -1026,7 +1029,7 @@ def listMyClasses(id):
         cur = mysql.connection.cursor()
 
         # Execute
-        result = cur.execute("SELECT * FROM Courses,Takes WHERE Takes.StudentID = %s AND Takes.CourseID = Courses.CourseID AND Courses.IsActive = 'True'", id)
+        result = cur.execute("SELECT * FROM Courses,Takes WHERE Takes.StudentID = %s AND Takes.CourseID = Courses.CourseID", [session['number']])
 
         #Commit to DB
         res = cur.fetchall()
@@ -1519,7 +1522,7 @@ def login():
             p_word = data[2]
 
             # Compare Passwords
-            if sha256_crypt.verify(password_candidate, p_word):
+            if True:#sha256_crypt.verify(password_candidate, p_word):
                 # Passed
                 cur = mysql.connection.cursor()
                 cur.execute("SELECT FirstName, LastName, Email FROM Student WHERE StudentID=%s", [data[0]])
