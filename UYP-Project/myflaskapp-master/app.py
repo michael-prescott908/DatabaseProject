@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, redirect, url_for, session, request, logging, jsonify, make_response
+from flask import Flask, render_template, flash, redirect, url_for, session, request, logging, jsonify, make_response, stream_with_context
 #from data import Articles
 from flask_mysqldb import MySQL
 from flask_admin import Admin
@@ -14,6 +14,10 @@ from flask_material import Material
 import random
 import string
 import re
+import csv
+from werkzeug.datastructures import Headers
+from werkzeug.wrappers import Response
+from io import StringIO
 
 
 app = Flask(__name__)
@@ -36,6 +40,41 @@ app.config.update(
 mysql = MySQL(app)
 mail = Mail(app)
 
+
+@app.route('/export', methods=['GET', 'POST'])            
+def generateCSV():
+    def generate():
+        data = StringIO()
+        w = csv.writer(data)
+		
+        print("WE GENERATING BABY")
+
+        # write header
+        w.writerow(('Course ID','Course Name','Department','Session','Time Slot','Grade Range','Maximum Capacity','Current Capacity'))
+        yield data.getvalue()
+        data.seek(0)
+        data.truncate(0)
+        
+        cur = mysql.connection.cursor()
+        result = cur.execute("SELECT Takes.CourseID,Course_Name,Deptartment,Session,TimeSlot,GradeRange,MaxCapacity,CurCapacity FROM Takes,Courses WHERE StudentID = %s AND Takes.CourseID = Courses.CourseID", [session['number']])
+        results = cur.fetchall()
+
+        # write each log item
+        for item in results:
+            w.writerow(item)
+            yield data.getvalue()
+            data.seek(0)
+            data.truncate(0)
+
+    # add a filename
+    headers = Headers()
+    headers.set('Content-Disposition', 'attachment', filename='exported.csv')
+
+    # stream the response as the data is generated
+    return Response(
+        stream_with_context(generate()),
+        mimetype='text/csv', headers=headers
+    )
 
 def giveAccount(id, message):
     cur = mysql.connection.cursor()
@@ -373,28 +412,28 @@ def adminaddteacher():
 
 @app.route('/admindeleteteacher')
 def admindeleteteacher(id):
-	if 'username' not in session:
-		flash("You are not authorized", 'danger')
-		return render_template('home.html')
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
 
-	elif session['username'] != 'Admin':
-		flash("You are not authorized", 'danger')
-		return render_template('home.html')
+    elif session['username'] != 'Admin':
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
 
-	else:
-		teacherid = id
+    else:
+        teacherid = id
 
-		cur = mysql.connection.cursor()
+        cur = mysql.connection.cursor()
 
-		result = cur.execute("DELETE FROM Teacher WHERE TeacherID = %s", (teacherid))
+        result = cur.execute("DELETE FROM Teacher WHERE TeacherID = %s", (teacherid))
 
-		mysql.connection.commit()
+        mysql.connection.commit()
 
-		cur.close()
+        cur.close()
 
-		return redirect(url_for('dashboard'))
+        return redirect(url_for('dashboard'))
 
-	return render_template('admindeleteteacher.html')
+    return render_template('admindeleteteacher.html')
 
 @app.route('/adstudent/<string:id>/', methods=['POST', 'GET'])
 def adstudent(id):
@@ -1044,6 +1083,8 @@ def listClasses():
     else:
         # Create Cursor
         cur = mysql.connection.cursor()
+        
+        generateCSV()
 
         # Execute
         result = cur.execute("SELECT * FROM Courses")
