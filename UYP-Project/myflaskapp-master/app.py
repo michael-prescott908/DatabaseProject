@@ -18,9 +18,9 @@ import re
 app = Flask(__name__)
 
 # Config MySQL
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'root'
+app.config['MYSQL_HOST'] = 'db.summersend.serverswc.com'
+app.config['MYSQL_USER'] = 'michael'
+app.config['MYSQL_PASSWORD'] = 'databaseproject'
 app.config['MYSQL_DB'] =  'uypdbfinal'
 app.config.update(
     DEBUG=True,
