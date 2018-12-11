@@ -1354,8 +1354,8 @@ def register():
             # Create cursor
         cur = mysql.connection.cursor()
             # Execute query
-        res = cur.execute("SELCET * FROM STUDENT WHERE StudentID=%s", str(StudentID))
-        res.close()
+        res = cur.execute("SELECT * FROM Student WHERE StudentID=%s", [str(StudentID)])
+        cur.close()
 
         if res == 0:
             print(FirstName + " " + LastName + " " + MiddleInit)
@@ -1403,7 +1403,6 @@ def register():
             return redirect('/')
         else:
             flash('You have already registered for UYP!', 'danger')
-
             return redirect('/')
     return render_template('register.html', form=form)
 
