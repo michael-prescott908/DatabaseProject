@@ -199,7 +199,6 @@ def adminstudents():
             msg = 'No students found'
             return render_template('adminstudents.html', msg=msg)
 
-
 @app.route('/registerclass/<string:id>')
 def registerclass(id):
     if 'username' not in session:
@@ -209,7 +208,7 @@ def registerclass(id):
         # Create Cursor
         cur = mysql.connection.cursor()
         cur2 = mysql.connection.cursor()
-
+        """
         cur2.execute("INSERT INTO TAKES (StudentID, CourseID) VALUES (%s, %s)", (session['number'], id))
         mysql.connection.commit()
         flash("You have registered for the class!", 'success')
@@ -247,12 +246,52 @@ def registerclass(id):
             print("The Grade: %s", [thegrade])
 
             if thegrade <= upper and thegrade >= lower:
-                flash("YOU CAN FUCKING REGISTER", 'danger')
-                return render_template('home.html')
+                cur7 = mysql.connection.cursor()
+                cur7.execute("SELECT CurCapacity FROM Courses WHERE CourseID = %s", [id])
+                thisValue = cur7.fetchone()
+
+                if thisValue[0] > 0:
+                    newValue = thisValue[0] + 1
+
+                    cur6 = mysql.connection.cursor()
+                    cur6.execute("UPDATE Courses SET CurCapacity = %s WHERE CourseID = %s", [newValue, id])
+                    mysql.connection.commit()
+
+                    cur5 = mysql.connection.cursor()
+                    cur5.execute("INSERT INTO TAKES (StudentID, CourseID) VALUES (%s, %s)", (session['number'], id))
+                    mysql.connection.commit()
+                    flash("You have registered for the class!", 'success')
+                    return render_template('home.html')
+                else:
+                    flash("This class is out of space.", 'danger')
+                    return render_template('home.html')
             else:
                 flash("CONFLICT: This class is not available for your grade range", 'danger')
                 return render_template('home.html')
-                """
+
+@app.route('/unregisterclass/<string:id>')
+def unregisterclass(id):
+    if 'username' not in session:
+        flash("You are not authorized", 'danger')
+        return render_template('home.html')
+    else:
+        # Create Cursor
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT CurCapacity FROM Courses WHERE CourseID = %s", [id])
+        result = cur.fetchone()
+
+        newValue = result[0] + 1
+
+        cur2 = mysql.connection.cursor()
+        cur.execute("UPDATE Courses SET CurCapacity = %s WHERE CourseID = %s", [newValue, id])
+        mysql.connection.commit()
+
+        cur3 = mysql.connection.cursor()
+        cur3.execute("DELETE FROM Takes WHERE CourseID = %s AND StudentID = %s", [id, session['number']])
+        mysql.connection.commit()
+
+        flash("You have successfully unregistered from this course.", 'success')
+        return render_template('home.html')
 
 
 @app.route('/adminad')
